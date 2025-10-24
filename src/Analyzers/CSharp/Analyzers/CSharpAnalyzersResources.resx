@@ -440,4 +440,12 @@
   <data name="Property_accessor_can_be_simplified" xml:space="preserve">
     <value>Property accessor can be simplified</value>
   </data>
+  <data name="Missing_throws_type" xml:space="preserve">
+    <value>Missing 'throws' type</value>
+    <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
+  </data>
+  <data name="Exception_0_is_thrown_but_not_declared_in_throws_clause" xml:space="preserve">
+    <value>Exception '{0}' is thrown but not declared in 'throws' clause</value>
+    <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
+  </data>
 </root>

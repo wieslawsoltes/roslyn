@@ -82,6 +82,11 @@
         <target state="translated">埋め込みステートメントは独自の行に配置する必要があります</target>
         <note />
       </trans-unit>
+      <trans-unit id="Exception_0_is_thrown_but_not_declared_in_throws_clause">
+        <source>Exception '{0}' is thrown but not declared in 'throws' clause</source>
+        <target state="new">Exception '{0}' is thrown but not declared in 'throws' clause</target>
+        <note>{Locked="throws"} "throws" is a C# keyword and should not be localized.</note>
+      </trans-unit>
       <trans-unit id="Implement_with_Copilot">
         <source>Implement with Copilot</source>
         <target state="new">Implement with Copilot</target>
@@ -131,6 +136,11 @@
         <source>Misplaced using directive</source>
         <target state="translated">using ディレクティブが正しく配置されていません</target>
         <note>{Locked="using"} "using" is a C# keyword and should not be localized.</note>
+      </trans-unit>
+      <trans-unit id="Missing_throws_type">
+        <source>Missing 'throws' type</source>
+        <target state="new">Missing 'throws' type</target>
+        <note>{Locked="throws"} "throws" is a C# keyword and should not be localized.</note>
       </trans-unit>
       <trans-unit id="Move_misplaced_using_directives">
         <source>Move misplaced using directives</source>

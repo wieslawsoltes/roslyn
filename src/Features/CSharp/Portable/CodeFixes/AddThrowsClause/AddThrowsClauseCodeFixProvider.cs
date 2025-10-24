@@ -24,9 +24,9 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.AddThrowsClause;
 [method: SuppressMessage("RoslynDiagnosticsReliability", "RS0033:Importing constructor should be [Obsolete]", Justification = "Used in test code: https://github.com/dotnet/roslyn/issues/42814")]
 internal sealed class AddThrowsClauseCodeFixProvider() : CodeFixProvider
 {
-    // This code fix will be triggered by a diagnostic analyzer (Phase 9.1)
-    // For now, we create the infrastructure without the diagnostic
-    public override ImmutableArray<string> FixableDiagnosticIds { get; } = [];
+    // This code fix is triggered by the MissingThrowsTypeAnalyzer (IDE0390)
+    public override ImmutableArray<string> FixableDiagnosticIds { get; }
+        = [IDEDiagnosticIds.MissingThrowsTypeDiagnosticId];
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
