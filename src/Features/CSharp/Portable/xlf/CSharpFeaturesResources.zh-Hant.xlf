@@ -17,6 +17,11 @@
         <target state="translated">新增單行控制項陳述式所需的大括弧</target>
         <note />
       </trans-unit>
+      <trans-unit id="Add_throws_clause">
+        <source>Add 'throws' clause</source>
+        <target state="new">Add 'throws' clause</target>
+        <note>{Locked="throws"} "throws" is a C# keyword and should not be localized.</note>
+      </trans-unit>
       <trans-unit id="Adds_a_NuGet_package_reference">
         <source>Adds a NuGet package reference.</source>
         <target state="new">Adds a NuGet package reference.</target>

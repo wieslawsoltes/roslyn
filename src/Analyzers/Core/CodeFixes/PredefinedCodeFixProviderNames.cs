@@ -22,6 +22,7 @@ internal static class PredefinedCodeFixProviderNames
     public const string AddParameter = nameof(AddParameter);
     public const string AddParenthesesAroundConditionalExpressionInInterpolatedString = nameof(AddParenthesesAroundConditionalExpressionInInterpolatedString);
     public const string AddRequiredParentheses = nameof(AddRequiredParentheses);
+    public const string AddThrowsClause = nameof(AddThrowsClause);
     public const string AliasAmbiguousType = nameof(AliasAmbiguousType);
     public const string ApplyNamingStyle = nameof(ApplyNamingStyle);
     public const string ArrowExpressionClausePlacement = nameof(ArrowExpressionClausePlacement);
