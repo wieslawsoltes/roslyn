@@ -262,6 +262,11 @@
         <target state="new">path</target>
         <note>'path' is a placeholder for a project file or directory path in a directive like '#:project path'.</note>
       </trans-unit>
+      <trans-unit id="Remove_throws_type">
+        <source>Remove 'throws' type</source>
+        <target state="new">Remove 'throws' type</target>
+        <note>{Locked="throws"} "throws" is a C# keyword and should not be localized.</note>
+      </trans-unit>
       <trans-unit id="Reverse_for_statement">
         <source>Reverse 'for' statement</source>
         <target state="translated">Inverser l'instruction 'for'</target>

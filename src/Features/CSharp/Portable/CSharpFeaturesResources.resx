@@ -128,6 +128,10 @@
     <value>Add 'throws' clause</value>
     <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
   </data>
+  <data name="Remove_throws_type" xml:space="preserve">
+    <value>Remove 'throws' type</value>
+    <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
+  </data>
   <data name="lambda_expression" xml:space="preserve">
     <value>&lt;lambda expression&gt;</value>
   </data>
