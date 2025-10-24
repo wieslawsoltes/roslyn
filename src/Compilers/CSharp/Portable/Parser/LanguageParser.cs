@@ -2345,6 +2345,48 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
+        private ThrowsClauseSyntax ParseThrowsClause()
+        {
+            Debug.Assert(this.CurrentToken.ContextualKind == SyntaxKind.ThrowsKeyword);
+
+            var throwsKeyword = this.EatContextualToken(SyntaxKind.ThrowsKeyword);
+            var exceptionTypes = _pool.AllocateSeparated<TypeSyntax>();
+
+            // Parse first exception type
+            if (this.CurrentToken.Kind == SyntaxKind.OpenBraceToken ||
+                this.CurrentToken.Kind == SyntaxKind.SemicolonToken ||
+                this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken)
+            {
+                // Missing exception type after 'throws'
+                exceptionTypes.Add(this.AddError(this.CreateMissingIdentifierName(), ErrorCode.ERR_TypeExpected));
+            }
+            else
+            {
+                exceptionTypes.Add(this.ParseType());
+
+                // Parse remaining exception types (comma-separated)
+                while (this.CurrentToken.Kind == SyntaxKind.CommaToken)
+                {
+                    exceptionTypes.AddSeparator(this.EatToken(SyntaxKind.CommaToken));
+
+                    if (this.CurrentToken.Kind == SyntaxKind.OpenBraceToken ||
+                        this.CurrentToken.Kind == SyntaxKind.SemicolonToken ||
+                        this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken)
+                    {
+                        // Missing exception type after comma
+                        exceptionTypes.Add(this.AddError(this.CreateMissingIdentifierName(), ErrorCode.ERR_TypeExpected));
+                        break;
+                    }
+                    else
+                    {
+                        exceptionTypes.Add(this.ParseType());
+                    }
+                }
+            }
+
+            return _syntaxFactory.ThrowsClause(throwsKeyword, _pool.ToListAndFree(exceptionTypes));
+        }
+
         private bool IsPossibleMemberStart()
         {
             return CanStartMember(this.CurrentToken.Kind);
@@ -3560,6 +3602,13 @@ parse_member_name:;
 
             _termState = saveTerm;
 
+            // Parse throws clause if present
+            ThrowsClauseSyntax? throwsClause = null;
+            if (this.CurrentToken.ContextualKind == SyntaxKind.ThrowsKeyword)
+            {
+                throwsClause = this.ParseThrowsClause();
+            }
+
             // Method declarations cannot be nested or placed inside async lambdas, and so cannot occur in an
             // asynchronous context. Therefore the IsInAsync state of the parent scope is not saved and
             // restored, just assumed to be false and reset accordingly after parsing the method body.
@@ -3580,7 +3629,7 @@ parse_member_name:;
                 typeParameterList,
                 paramList,
                 _pool.ToListAndFree(constraints),
-                throwsClause: null, // TODO: Parse throws clause
+                throwsClause,
                 blockBody,
                 expressionBody,
                 semicolon);
