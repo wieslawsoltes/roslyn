@@ -132,6 +132,7 @@ internal static class MethodGenerator
             typeParameterList: GenerateTypeParameterList(method, info),
             parameterList: ParameterGenerator.GenerateParameterList(parameters, isExplicit: isExplicit, info),
             constraintClauses: GenerateConstraintClauses(method),
+            throwsClause: null,
             body: hasNoBody ? null : StatementGenerator.GenerateBlock(method),
             expressionBody: null,
             semicolonToken: hasNoBody ? SemicolonToken : default);

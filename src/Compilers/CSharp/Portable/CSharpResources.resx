@@ -8171,4 +8171,19 @@ To remove the warning, you can use /reference instead (set the Embed Interop Typ
   <data name="ERR_AmbigExtension" xml:space="preserve">
     <value>The extension resolution is ambiguous between the following members: '{0}' and '{1}'</value>
   </data>
+  <data name="ERR_ThrowsClauseTypeMustDeriveFromException" xml:space="preserve">
+    <value>Throws clause type '{0}' does not derive from 'System.Exception'</value>
+  </data>
+  <data name="ERR_DuplicateExceptionTypeInThrowsClause" xml:space="preserve">
+    <value>Duplicate exception type '{0}' in throws clause</value>
+  </data>
+  <data name="ERR_OverrideThrowsExceptionNotDeclaredByBase" xml:space="preserve">
+    <value>'{0}': override method throws exception type '{1}' not declared in base method</value>
+  </data>
+  <data name="ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface" xml:space="preserve">
+    <value>'{0}': interface implementation throws exception type '{1}' not declared in interface method</value>
+  </data>
+  <data name="ERR_ThrowsClauseNotAllowedOnMemberKind" xml:space="preserve">
+    <value>Throws clause is not allowed on {0}</value>
+  </data>
 </root>

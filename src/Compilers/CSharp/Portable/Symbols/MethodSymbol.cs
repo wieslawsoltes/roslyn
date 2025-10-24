@@ -328,6 +328,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public abstract ImmutableArray<ParameterSymbol> Parameters { get; }
 
         /// <summary>
+        /// Gets the exception types declared in the throws clause of this method.
+        /// Returns an empty array if the method has no throws clause.
+        /// </summary>
+        public virtual ImmutableArray<TypeSymbol> ThrowsTypes
+        {
+            get
+            {
+                return ImmutableArray<TypeSymbol>.Empty;
+            }
+        }
+
+        /// <summary>
         /// Returns the method symbol that this method was constructed from. The resulting
         /// method symbol
         /// has the same containing type (if any), but has type arguments that are the same

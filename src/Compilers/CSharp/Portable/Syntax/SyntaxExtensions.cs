@@ -330,6 +330,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 typeParameterList,
                 parameterList,
                 constraintClauses,
+                throwsClause: syntax.ThrowsClause,
                 block,
                 expressionBody: null,
                 semicolonToken);

@@ -2437,6 +2437,16 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_BadVisBaseType = 9338,
         ERR_AmbigExtension = 9339,
 
+        #region diagnostics for throws clause feature
+
+        ERR_ThrowsClauseTypeMustDeriveFromException = 9340,
+        ERR_DuplicateExceptionTypeInThrowsClause = 9341,
+        ERR_OverrideThrowsExceptionNotDeclaredByBase = 9342,
+        ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface = 9343,
+        ERR_ThrowsClauseNotAllowedOnMemberKind = 9344,
+
+        #endregion
+
         // Note: you will need to do the following after adding errors:
         //  1) Update ErrorFacts.IsBuildOnlyDiagnostic (src/Compilers/CSharp/Portable/Errors/ErrorFacts.cs)
         //  2) Add message to CSharpResources.resx

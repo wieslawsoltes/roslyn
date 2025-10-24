@@ -20,6 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private ImmutableArray<CustomModifier> _lazyRefCustomModifiers;
         private ImmutableArray<ParameterSymbol> _lazyParameters;
         private TypeWithAnnotations _lazyReturnType;
+        private ImmutableArray<TypeSymbol> _lazyThrowsTypes;
 
         protected SourceOrdinaryMethodOrUserDefinedOperatorSymbol(NamedTypeSymbol containingType, SyntaxReference syntaxReferenceOpt, Location location, bool isIterator, (DeclarationModifiers declarationModifiers, Flags flags) modifiersAndFlags)
             : base(containingType, syntaxReferenceOpt, location, isIterator, modifiersAndFlags)
@@ -39,8 +40,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected MethodSymbol? MethodChecks(TypeWithAnnotations returnType, ImmutableArray<ParameterSymbol> parameters, BindingDiagnosticBag diagnostics)
         {
+            return MethodChecks(returnType, parameters, ImmutableArray<TypeSymbol>.Empty, diagnostics);
+        }
+
+        protected MethodSymbol? MethodChecks(TypeWithAnnotations returnType, ImmutableArray<ParameterSymbol> parameters, ImmutableArray<TypeSymbol> throwsTypes, BindingDiagnosticBag diagnostics)
+        {
             _lazyReturnType = returnType;
             _lazyParameters = parameters;
+            _lazyThrowsTypes = throwsTypes;
 
             // set ReturnsVoid flag
             this.SetReturnsVoid(_lazyReturnType.IsVoidType());
@@ -188,6 +195,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 LazyMethodChecks();
                 return _lazyReturnType;
+            }
+        }
+
+        public sealed override ImmutableArray<TypeSymbol> ThrowsTypes
+        {
+            get
+            {
+                LazyMethodChecks();
+                return _lazyThrowsTypes;
             }
         }
 

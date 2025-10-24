@@ -45,8 +45,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 typeParameterList,
                 parameterList,
                 constraintClauses,
+                throwsClause: null,
                 body,
-                null,
+                expressionBody: null,
                 semicolonToken);
         }
     }

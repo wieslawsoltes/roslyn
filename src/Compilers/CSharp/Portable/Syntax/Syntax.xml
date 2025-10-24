@@ -3708,6 +3708,23 @@
       </PropertyComment>
     </Field>
   </Node>
+  <Node Name="ThrowsClauseSyntax" Base="CSharpSyntaxNode">
+    <TypeComment>
+      <summary>Throws clause syntax for method declarations.</summary>
+    </TypeComment>
+    <Kind Name="ThrowsClause"/>
+    <Field Name="ThrowsKeyword" Type="SyntaxToken">
+      <PropertyComment>
+        <summary>Gets the throws keyword.</summary>
+      </PropertyComment>
+      <Kind Name="ThrowsKeyword"/>
+    </Field>
+    <Field Name="ExceptionTypes" Type="SeparatedSyntaxList&lt;TypeSyntax&gt;" MinCount="1">
+      <PropertyComment>
+        <summary>Gets the exception types.</summary>
+      </PropertyComment>
+    </Field>
+  </Node>
   <AbstractNode Name="TypeParameterConstraintSyntax" Base="CSharpSyntaxNode">
     <TypeComment>
       <summary>Base type for type parameter constraint syntax.</summary>
@@ -3901,6 +3918,11 @@
     <Field Name="ConstraintClauses" Type="SyntaxList&lt;TypeParameterConstraintClauseSyntax&gt;">
       <PropertyComment>
         <summary>Gets the constraint clause list.</summary>
+      </PropertyComment>
+    </Field>
+    <Field Name="ThrowsClause" Type="ThrowsClauseSyntax" Optional="true">
+      <PropertyComment>
+        <summary>Gets the optional throws clause.</summary>
       </PropertyComment>
     </Field>
     <Choice>

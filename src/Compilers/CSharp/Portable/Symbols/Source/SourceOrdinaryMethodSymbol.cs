@@ -201,6 +201,65 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
+        private ImmutableArray<TypeSymbol> BindThrowsTypes(BindingDiagnosticBag diagnostics)
+        {
+            var syntax = GetSyntax();
+            if (syntax.ThrowsClause == null)
+            {
+                return ImmutableArray<TypeSymbol>.Empty;
+            }
+
+            var withTypeParamsBinder = this.DeclaringCompilation.GetBinderFactory(syntax.SyntaxTree).GetBinder(syntax.ReturnType, syntax, this);
+            var signatureBinder = withTypeParamsBinder.WithAdditionalFlagsAndContainingMemberOrLambda(BinderFlags.SuppressConstraintChecks, this);
+
+            var exceptionTypesSyntax = syntax.ThrowsClause.ExceptionTypes;
+            var throwsTypesBuilder = ArrayBuilder<TypeSymbol>.GetInstance(exceptionTypesSyntax.Count);
+            var seenTypes = PooledHashSet<TypeSymbol>.GetInstance();
+
+            // Get System.Exception type for validation
+            var exceptionType = this.DeclaringCompilation.GetWellKnownType(WellKnownType.System_Exception);
+
+            for (int i = 0; i < exceptionTypesSyntax.Count; i++)
+            {
+                var exceptionTypeSyntax = exceptionTypesSyntax[i];
+                var boundType = signatureBinder.BindType(exceptionTypeSyntax, diagnostics).Type;
+                throwsTypesBuilder.Add(boundType);
+
+                // Skip validation for error types - already reported
+                if (boundType.IsErrorType())
+                {
+                    continue;
+                }
+
+                // Check if the type derives from System.Exception
+                if (!exceptionType.IsErrorType())
+                {
+                    CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, this.ContainingAssembly);
+                    var conversion = this.DeclaringCompilation.Conversions.ClassifyBuiltInConversion(boundType, exceptionType, isChecked: false, ref useSiteInfo);
+                    diagnostics.Add(exceptionTypeSyntax.Location, useSiteInfo);
+
+                    // Allow identity conversion (System.Exception itself) or implicit reference conversion (derived types)
+                    if (!(conversion.IsIdentity || (conversion.IsImplicit && conversion.IsReference)))
+                    {
+                        diagnostics.Add(ErrorCode.ERR_ThrowsClauseTypeMustDeriveFromException,
+                            exceptionTypeSyntax.Location,
+                            boundType);
+                    }
+                }
+
+                // Check for duplicate exception types
+                if (!seenTypes.Add(boundType))
+                {
+                    diagnostics.Add(ErrorCode.ERR_DuplicateExceptionTypeInThrowsClause,
+                        exceptionTypeSyntax.Location,
+                        boundType);
+                }
+            }
+
+            seenTypes.Free();
+            return throwsTypesBuilder.ToImmutableAndFree();
+        }
+
         protected sealed override void ExtensionMethodChecks(BindingDiagnosticBag diagnostics)
         {
             // errors relevant for extension methods
@@ -664,8 +723,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(this.MethodKind != MethodKind.UserDefinedOperator, "SourceUserDefinedOperatorSymbolBase overrides this");
 
             var (returnType, parameters, declaredConstraints) = MakeParametersAndBindReturnType(diagnostics);
+            var throwsTypes = BindThrowsTypes(diagnostics);
 
-            MethodSymbol? overriddenOrExplicitlyImplementedMethod = MethodChecks(returnType, parameters, diagnostics);
+            MethodSymbol? overriddenOrExplicitlyImplementedMethod = MethodChecks(returnType, parameters, throwsTypes, diagnostics);
 
             if (!declaredConstraints.IsDefault && overriddenOrExplicitlyImplementedMethod is object)
             {

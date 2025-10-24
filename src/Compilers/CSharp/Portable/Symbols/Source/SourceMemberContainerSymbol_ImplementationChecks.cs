@@ -329,6 +329,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                         ? implementingMember.GetFirstLocation()
                                         : this.GetFirstLocation();
                                     diagnostics.Add(useSiteInfo, location);
+
+                                    // Check throws clause compatibility for interface implementations
+                                    CheckThrowsClauseInterfaceImplementation(
+                                        (MethodSymbol)interfaceMember,
+                                        (MethodSymbol)implementingMember,
+                                        diagnostics,
+                                        location);
                                 }
                             }
                         }
@@ -1189,6 +1196,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     },
                     overridingMemberLocation,
                     invokedAsExtensionMethod: false);
+
+                // Check throws clause compatibility
+                CheckThrowsClauseOverride(overriddenMethod, overridingMethod, diagnostics, overridingMemberLocation);
             }
         }
 
@@ -1231,6 +1241,120 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 topLevel ? ErrorCode.WRN_TopLevelNullabilityMismatchInParameterTypeOnOverride : ErrorCode.WRN_NullabilityMismatchInParameterTypeOnOverride,
                 location,
                 new FormattedSymbol(overridingParameter, SymbolDisplayFormat.ShortFormat));
+
+        /// <summary>
+        /// Checks that an overriding method's throws clause is compatible with the base method.
+        /// An override can only throw exception types that are declared by the base method or are subtypes thereof.
+        /// </summary>
+        private static void CheckThrowsClauseOverride(
+            MethodSymbol baseMethod,
+            MethodSymbol overrideMethod,
+            BindingDiagnosticBag diagnostics,
+            Location location)
+        {
+            var overrideThrowsTypes = overrideMethod.ThrowsTypes;
+            if (overrideThrowsTypes.IsEmpty)
+            {
+                // Override throws no exceptions - always valid
+                return;
+            }
+
+            var baseThrowsTypes = baseMethod.ThrowsTypes;
+
+            // Check each exception type in the override's throws clause
+            foreach (var overrideExceptionType in overrideThrowsTypes)
+            {
+                bool isCompatible = false;
+
+                // An override exception type is compatible if:
+                // 1. It's declared in the base throws clause, or
+                // 2. It's a subtype of an exception declared in the base throws clause
+                foreach (var baseExceptionType in baseThrowsTypes)
+                {
+                    CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, baseMethod.ContainingAssembly);
+                    var conversion = overrideMethod.DeclaringCompilation.Conversions.ClassifyBuiltInConversion(
+                        overrideExceptionType,
+                        baseExceptionType,
+                        isChecked: false,
+                        ref useSiteInfo);
+                    diagnostics.Add(location, useSiteInfo);
+
+                    // Allow identity conversion (same type) or implicit reference conversion (subtype)
+                    if (conversion.IsIdentity || (conversion.IsImplicit && conversion.IsReference))
+                    {
+                        // Override exception type is same as or derives from base exception type
+                        isCompatible = true;
+                        break;
+                    }
+                }
+
+                if (!isCompatible)
+                {
+                    // ERR_OverrideThrowsExceptionNotDeclaredByBase
+                    diagnostics.Add(ErrorCode.ERR_OverrideThrowsExceptionNotDeclaredByBase,
+                        location,
+                        overrideMethod,
+                        overrideExceptionType);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks that an implementing method's throws clause is compatible with the interface method.
+        /// An implementation can only throw exception types that are declared by the interface method or are subtypes thereof.
+        /// </summary>
+        private static void CheckThrowsClauseInterfaceImplementation(
+            MethodSymbol interfaceMethod,
+            MethodSymbol implementingMethod,
+            BindingDiagnosticBag diagnostics,
+            Location location)
+        {
+            var implementationThrowsTypes = implementingMethod.ThrowsTypes;
+            if (implementationThrowsTypes.IsEmpty)
+            {
+                // Implementation throws no exceptions - always valid
+                return;
+            }
+
+            var interfaceThrowsTypes = interfaceMethod.ThrowsTypes;
+
+            // Check each exception type in the implementation's throws clause
+            foreach (var implementationExceptionType in implementationThrowsTypes)
+            {
+                bool isCompatible = false;
+
+                // An implementation exception type is compatible if:
+                // 1. It's declared in the interface throws clause (identity conversion), or
+                // 2. It's a subtype of an exception declared in the interface throws clause (reference conversion)
+                foreach (var interfaceExceptionType in interfaceThrowsTypes)
+                {
+                    CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, interfaceMethod.ContainingAssembly);
+                    var conversion = implementingMethod.DeclaringCompilation.Conversions.ClassifyBuiltInConversion(
+                        implementationExceptionType,
+                        interfaceExceptionType,
+                        isChecked: false,
+                        ref useSiteInfo);
+                    diagnostics.Add(location, useSiteInfo);
+
+                    // Allow identity conversion (same type) or implicit reference conversion (subtype)
+                    if (conversion.IsIdentity || (conversion.IsImplicit && conversion.IsReference))
+                    {
+                        // Implementation exception type is same as or derives from interface exception type
+                        isCompatible = true;
+                        break;
+                    }
+                }
+
+                if (!isCompatible)
+                {
+                    // ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface
+                    diagnostics.Add(ErrorCode.ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface,
+                        location,
+                        implementingMethod,
+                        implementationExceptionType);
+                }
+            }
+        }
 
         /// <returns>
         /// <see langword="true"/> if a diagnostic was added. Otherwise, <see langword="false"/>.

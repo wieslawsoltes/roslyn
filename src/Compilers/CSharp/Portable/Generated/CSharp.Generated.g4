@@ -192,7 +192,7 @@ destructor_declaration
   ;
 
 method_declaration
-  : attribute_list* modifier* type explicit_interface_specifier? identifier_token type_parameter_list? parameter_list type_parameter_constraint_clause* (block | (arrow_expression_clause ';'))
+  : attribute_list* modifier* type explicit_interface_specifier? identifier_token type_parameter_list? parameter_list type_parameter_constraint_clause* throws_clause? (block | (arrow_expression_clause ';'))
   ;
 
 type_parameter_list
@@ -242,6 +242,10 @@ default_constraint
 
 type_constraint
   : type
+  ;
+
+throws_clause
+  : 'throws' type (',' type)*
   ;
 
 operator_declaration

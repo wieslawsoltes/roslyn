@@ -163,6 +163,20 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
         Public MustOverride ReadOnly Property RefCustomModifiers As ImmutableArray(Of CustomModifier)
 
         ''' <summary>
+        ''' Gets the exception types declared in the throws clause of this method.
+        ''' Returns an empty array if the method has no throws clause.
+        ''' </summary>
+        ''' <remarks>
+        ''' Note: This property is not supported in Visual Basic and always returns an empty array.
+        ''' It is provided for compatibility with the IMethodSymbol interface.
+        ''' </remarks>
+        Public Overridable ReadOnly Property ThrowsTypes As ImmutableArray(Of ITypeSymbol) Implements IMethodSymbol.ThrowsTypes
+            Get
+                Return ImmutableArray(Of ITypeSymbol).Empty
+            End Get
+        End Property
+
+        ''' <summary>
         ''' Returns the list of attributes, if any, associated with the return type.
         ''' </summary>
         Public Overridable Function GetReturnTypeAttributes() As ImmutableArray(Of VisualBasicAttributeData)

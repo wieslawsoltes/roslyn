@@ -11700,6 +11700,60 @@ public sealed partial class TypeParameterConstraintClauseSyntax : CSharpSyntaxNo
     public TypeParameterConstraintClauseSyntax AddConstraints(params TypeParameterConstraintSyntax[] items) => WithConstraints(this.Constraints.AddRange(items));
 }
 
+/// <summary>Throws clause syntax for method declarations.</summary>
+/// <remarks>
+/// <para>This node is associated with the following syntax kinds:</para>
+/// <list type="bullet">
+/// <item><description><see cref="SyntaxKind.ThrowsClause"/></description></item>
+/// </list>
+/// </remarks>
+public sealed partial class ThrowsClauseSyntax : CSharpSyntaxNode
+{
+    private SyntaxNode? exceptionTypes;
+
+    internal ThrowsClauseSyntax(InternalSyntax.CSharpSyntaxNode green, SyntaxNode? parent, int position)
+      : base(green, parent, position)
+    {
+    }
+
+    /// <summary>Gets the throws keyword.</summary>
+    public SyntaxToken ThrowsKeyword => new SyntaxToken(this, ((InternalSyntax.ThrowsClauseSyntax)this.Green).throwsKeyword, Position, 0);
+
+    /// <summary>Gets the exception types.</summary>
+    public SeparatedSyntaxList<TypeSyntax> ExceptionTypes
+    {
+        get
+        {
+            var red = GetRed(ref this.exceptionTypes, 1);
+            return red != null ? new SeparatedSyntaxList<TypeSyntax>(red, GetChildIndex(1)) : default;
+        }
+    }
+
+    internal override SyntaxNode? GetNodeSlot(int index) => index == 1 ? GetRed(ref this.exceptionTypes, 1)! : null;
+
+    internal override SyntaxNode? GetCachedSlot(int index) => index == 1 ? this.exceptionTypes : null;
+
+    public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitThrowsClause(this);
+    public override TResult? Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) where TResult : default => visitor.VisitThrowsClause(this);
+
+    public ThrowsClauseSyntax Update(SyntaxToken throwsKeyword, SeparatedSyntaxList<TypeSyntax> exceptionTypes)
+    {
+        if (throwsKeyword != this.ThrowsKeyword || exceptionTypes != this.ExceptionTypes)
+        {
+            var newNode = SyntaxFactory.ThrowsClause(throwsKeyword, exceptionTypes);
+            var annotations = GetAnnotations();
+            return annotations?.Length > 0 ? newNode.WithAnnotations(annotations) : newNode;
+        }
+
+        return this;
+    }
+
+    public ThrowsClauseSyntax WithThrowsKeyword(SyntaxToken throwsKeyword) => Update(throwsKeyword, this.ExceptionTypes);
+    public ThrowsClauseSyntax WithExceptionTypes(SeparatedSyntaxList<TypeSyntax> exceptionTypes) => Update(this.ThrowsKeyword, exceptionTypes);
+
+    public ThrowsClauseSyntax AddExceptionTypes(params TypeSyntax[] items) => WithExceptionTypes(this.ExceptionTypes.AddRange(items));
+}
+
 /// <summary>Base type for type parameter constraint syntax.</summary>
 public abstract partial class TypeParameterConstraintSyntax : CSharpSyntaxNode
 {
@@ -12283,6 +12337,7 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
     private TypeParameterListSyntax? typeParameterList;
     private ParameterListSyntax? parameterList;
     private SyntaxNode? constraintClauses;
+    private ThrowsClauseSyntax? throwsClause;
     private BlockSyntax? body;
     private ArrowExpressionClauseSyntax? expressionBody;
 
@@ -12317,9 +12372,12 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
     /// <summary>Gets the constraint clause list.</summary>
     public SyntaxList<TypeParameterConstraintClauseSyntax> ConstraintClauses => new SyntaxList<TypeParameterConstraintClauseSyntax>(GetRed(ref this.constraintClauses, 7));
 
-    public override BlockSyntax? Body => GetRed(ref this.body, 8);
+    /// <summary>Gets the optional throws clause.</summary>
+    public ThrowsClauseSyntax? ThrowsClause => GetRed(ref this.throwsClause, 8);
 
-    public override ArrowExpressionClauseSyntax? ExpressionBody => GetRed(ref this.expressionBody, 9);
+    public override BlockSyntax? Body => GetRed(ref this.body, 9);
+
+    public override ArrowExpressionClauseSyntax? ExpressionBody => GetRed(ref this.expressionBody, 10);
 
     /// <summary>Gets the optional semicolon token.</summary>
     public override SyntaxToken SemicolonToken
@@ -12327,7 +12385,7 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
         get
         {
             var slot = ((Syntax.InternalSyntax.MethodDeclarationSyntax)this.Green).semicolonToken;
-            return slot != null ? new SyntaxToken(this, slot, GetChildPosition(10), GetChildIndex(10)) : default;
+            return slot != null ? new SyntaxToken(this, slot, GetChildPosition(11), GetChildIndex(11)) : default;
         }
     }
 
@@ -12340,8 +12398,9 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
             5 => GetRed(ref this.typeParameterList, 5),
             6 => GetRed(ref this.parameterList, 6)!,
             7 => GetRed(ref this.constraintClauses, 7)!,
-            8 => GetRed(ref this.body, 8),
-            9 => GetRed(ref this.expressionBody, 9),
+            8 => GetRed(ref this.throwsClause, 8),
+            9 => GetRed(ref this.body, 9),
+            10 => GetRed(ref this.expressionBody, 10),
             _ => null,
         };
 
@@ -12354,19 +12413,20 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
             5 => this.typeParameterList,
             6 => this.parameterList,
             7 => this.constraintClauses,
-            8 => this.body,
-            9 => this.expressionBody,
+            8 => this.throwsClause,
+            9 => this.body,
+            10 => this.expressionBody,
             _ => null,
         };
 
     public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitMethodDeclaration(this);
     public override TResult? Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) where TResult : default => visitor.VisitMethodDeclaration(this);
 
-    public MethodDeclarationSyntax Update(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken semicolonToken)
+    public MethodDeclarationSyntax Update(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken semicolonToken)
     {
-        if (attributeLists != this.AttributeLists || modifiers != this.Modifiers || returnType != this.ReturnType || explicitInterfaceSpecifier != this.ExplicitInterfaceSpecifier || identifier != this.Identifier || typeParameterList != this.TypeParameterList || parameterList != this.ParameterList || constraintClauses != this.ConstraintClauses || body != this.Body || expressionBody != this.ExpressionBody || semicolonToken != this.SemicolonToken)
+        if (attributeLists != this.AttributeLists || modifiers != this.Modifiers || returnType != this.ReturnType || explicitInterfaceSpecifier != this.ExplicitInterfaceSpecifier || identifier != this.Identifier || typeParameterList != this.TypeParameterList || parameterList != this.ParameterList || constraintClauses != this.ConstraintClauses || throwsClause != this.ThrowsClause || body != this.Body || expressionBody != this.ExpressionBody || semicolonToken != this.SemicolonToken)
         {
-            var newNode = SyntaxFactory.MethodDeclaration(attributeLists, modifiers, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses, body, expressionBody, semicolonToken);
+            var newNode = SyntaxFactory.MethodDeclaration(attributeLists, modifiers, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses, throwsClause, body, expressionBody, semicolonToken);
             var annotations = GetAnnotations();
             return annotations?.Length > 0 ? newNode.WithAnnotations(annotations) : newNode;
         }
@@ -12375,22 +12435,23 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
     }
 
     internal override MemberDeclarationSyntax WithAttributeListsCore(SyntaxList<AttributeListSyntax> attributeLists) => WithAttributeLists(attributeLists);
-    public new MethodDeclarationSyntax WithAttributeLists(SyntaxList<AttributeListSyntax> attributeLists) => Update(attributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public new MethodDeclarationSyntax WithAttributeLists(SyntaxList<AttributeListSyntax> attributeLists) => Update(attributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
     internal override MemberDeclarationSyntax WithModifiersCore(SyntaxTokenList modifiers) => WithModifiers(modifiers);
-    public new MethodDeclarationSyntax WithModifiers(SyntaxTokenList modifiers) => Update(this.AttributeLists, modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
-    public MethodDeclarationSyntax WithReturnType(TypeSyntax returnType) => Update(this.AttributeLists, this.Modifiers, returnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
-    public MethodDeclarationSyntax WithExplicitInterfaceSpecifier(ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, explicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
-    public MethodDeclarationSyntax WithIdentifier(SyntaxToken identifier) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
-    public MethodDeclarationSyntax WithTypeParameterList(TypeParameterListSyntax? typeParameterList) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, typeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public new MethodDeclarationSyntax WithModifiers(SyntaxTokenList modifiers) => Update(this.AttributeLists, modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithReturnType(TypeSyntax returnType) => Update(this.AttributeLists, this.Modifiers, returnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithExplicitInterfaceSpecifier(ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, explicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithIdentifier(SyntaxToken identifier) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithTypeParameterList(TypeParameterListSyntax? typeParameterList) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, typeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
     internal override BaseMethodDeclarationSyntax WithParameterListCore(ParameterListSyntax parameterList) => WithParameterList(parameterList);
-    public new MethodDeclarationSyntax WithParameterList(ParameterListSyntax parameterList) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, parameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
-    public MethodDeclarationSyntax WithConstraintClauses(SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, constraintClauses, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public new MethodDeclarationSyntax WithParameterList(ParameterListSyntax parameterList) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, parameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithConstraintClauses(SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, constraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
+    public MethodDeclarationSyntax WithThrowsClause(ThrowsClauseSyntax? throwsClause) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, throwsClause, this.Body, this.ExpressionBody, this.SemicolonToken);
     internal override BaseMethodDeclarationSyntax WithBodyCore(BlockSyntax? body) => WithBody(body);
-    public new MethodDeclarationSyntax WithBody(BlockSyntax? body) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, body, this.ExpressionBody, this.SemicolonToken);
+    public new MethodDeclarationSyntax WithBody(BlockSyntax? body) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, body, this.ExpressionBody, this.SemicolonToken);
     internal override BaseMethodDeclarationSyntax WithExpressionBodyCore(ArrowExpressionClauseSyntax? expressionBody) => WithExpressionBody(expressionBody);
-    public new MethodDeclarationSyntax WithExpressionBody(ArrowExpressionClauseSyntax? expressionBody) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, expressionBody, this.SemicolonToken);
+    public new MethodDeclarationSyntax WithExpressionBody(ArrowExpressionClauseSyntax? expressionBody) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, expressionBody, this.SemicolonToken);
     internal override BaseMethodDeclarationSyntax WithSemicolonTokenCore(SyntaxToken semicolonToken) => WithSemicolonToken(semicolonToken);
-    public new MethodDeclarationSyntax WithSemicolonToken(SyntaxToken semicolonToken) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.Body, this.ExpressionBody, semicolonToken);
+    public new MethodDeclarationSyntax WithSemicolonToken(SyntaxToken semicolonToken) => Update(this.AttributeLists, this.Modifiers, this.ReturnType, this.ExplicitInterfaceSpecifier, this.Identifier, this.TypeParameterList, this.ParameterList, this.ConstraintClauses, this.ThrowsClause, this.Body, this.ExpressionBody, semicolonToken);
 
     internal override MemberDeclarationSyntax AddAttributeListsCore(params AttributeListSyntax[] items) => AddAttributeLists(items);
     public new MethodDeclarationSyntax AddAttributeLists(params AttributeListSyntax[] items) => WithAttributeLists(this.AttributeLists.AddRange(items));
@@ -12404,6 +12465,11 @@ public sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSynta
     internal override BaseMethodDeclarationSyntax AddParameterListParametersCore(params ParameterSyntax[] items) => AddParameterListParameters(items);
     public new MethodDeclarationSyntax AddParameterListParameters(params ParameterSyntax[] items) => WithParameterList(this.ParameterList.WithParameters(this.ParameterList.Parameters.AddRange(items)));
     public MethodDeclarationSyntax AddConstraintClauses(params TypeParameterConstraintClauseSyntax[] items) => WithConstraintClauses(this.ConstraintClauses.AddRange(items));
+    public MethodDeclarationSyntax AddThrowsClauseExceptionTypes(params TypeSyntax[] items)
+    {
+        var throwsClause = this.ThrowsClause ?? SyntaxFactory.ThrowsClause();
+        return WithThrowsClause(throwsClause.WithExceptionTypes(throwsClause.ExceptionTypes.AddRange(items)));
+    }
     internal override BaseMethodDeclarationSyntax AddBodyAttributeListsCore(params AttributeListSyntax[] items) => AddBodyAttributeLists(items);
     public new MethodDeclarationSyntax AddBodyAttributeLists(params AttributeListSyntax[] items)
     {

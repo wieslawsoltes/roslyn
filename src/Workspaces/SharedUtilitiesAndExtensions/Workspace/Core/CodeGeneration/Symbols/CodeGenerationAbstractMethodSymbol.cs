@@ -99,6 +99,8 @@ internal abstract class CodeGenerationAbstractMethodSymbol : CodeGenerationSymbo
 
     public bool IsConditional => false;
 
+    public virtual ImmutableArray<ITypeSymbol> ThrowsTypes => ImmutableArray<ITypeSymbol>.Empty;
+
 #if !ROSLYN_4_12_OR_LOWER
     public bool IsIterator => false;
 

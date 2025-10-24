@@ -2544,6 +2544,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.HDN_RedundantPatternStackGuard
                 or ErrorCode.ERR_BadVisBaseType
                 or ErrorCode.ERR_AmbigExtension
+                or ErrorCode.ERR_ThrowsClauseTypeMustDeriveFromException
+                or ErrorCode.ERR_DuplicateExceptionTypeInThrowsClause
+                or ErrorCode.ERR_OverrideThrowsExceptionNotDeclaredByBase
+                or ErrorCode.ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface
+                or ErrorCode.ERR_ThrowsClauseNotAllowedOnMemberKind
                     => false,
             };
 #pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.

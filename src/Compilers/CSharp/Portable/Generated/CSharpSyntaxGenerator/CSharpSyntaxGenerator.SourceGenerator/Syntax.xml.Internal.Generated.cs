@@ -18690,6 +18690,94 @@ internal sealed partial class TypeParameterConstraintClauseSyntax : CSharpSyntax
         => new TypeParameterConstraintClauseSyntax(this.Kind, this.whereKeyword, this.name, this.colonToken, this.constraints, GetDiagnostics(), annotations);
 }
 
+/// <summary>Throws clause syntax for method declarations.</summary>
+internal sealed partial class ThrowsClauseSyntax : CSharpSyntaxNode
+{
+    internal readonly SyntaxToken throwsKeyword;
+    internal readonly GreenNode? exceptionTypes;
+
+    internal ThrowsClauseSyntax(SyntaxKind kind, SyntaxToken throwsKeyword, GreenNode? exceptionTypes, DiagnosticInfo[]? diagnostics, SyntaxAnnotation[]? annotations)
+      : base(kind, diagnostics, annotations)
+    {
+        this.SlotCount = 2;
+        this.AdjustFlagsAndWidth(throwsKeyword);
+        this.throwsKeyword = throwsKeyword;
+        if (exceptionTypes != null)
+        {
+            this.AdjustFlagsAndWidth(exceptionTypes);
+            this.exceptionTypes = exceptionTypes;
+        }
+    }
+
+    internal ThrowsClauseSyntax(SyntaxKind kind, SyntaxToken throwsKeyword, GreenNode? exceptionTypes, SyntaxFactoryContext context)
+      : base(kind)
+    {
+        this.SetFactoryContext(context);
+        this.SlotCount = 2;
+        this.AdjustFlagsAndWidth(throwsKeyword);
+        this.throwsKeyword = throwsKeyword;
+        if (exceptionTypes != null)
+        {
+            this.AdjustFlagsAndWidth(exceptionTypes);
+            this.exceptionTypes = exceptionTypes;
+        }
+    }
+
+    internal ThrowsClauseSyntax(SyntaxKind kind, SyntaxToken throwsKeyword, GreenNode? exceptionTypes)
+      : base(kind)
+    {
+        this.SlotCount = 2;
+        this.AdjustFlagsAndWidth(throwsKeyword);
+        this.throwsKeyword = throwsKeyword;
+        if (exceptionTypes != null)
+        {
+            this.AdjustFlagsAndWidth(exceptionTypes);
+            this.exceptionTypes = exceptionTypes;
+        }
+    }
+
+    /// <summary>Gets the throws keyword.</summary>
+    public SyntaxToken ThrowsKeyword => this.throwsKeyword;
+    /// <summary>Gets the exception types.</summary>
+    public CoreSyntax.SeparatedSyntaxList<TypeSyntax> ExceptionTypes => new CoreSyntax.SeparatedSyntaxList<TypeSyntax>(new CoreSyntax.SyntaxList<CSharpSyntaxNode>(this.exceptionTypes));
+
+    internal override GreenNode? GetSlot(int index)
+        => index switch
+        {
+            0 => this.throwsKeyword,
+            1 => this.exceptionTypes,
+            _ => null,
+        };
+
+    internal override SyntaxNode CreateRed(SyntaxNode? parent, int position) => new CSharp.Syntax.ThrowsClauseSyntax(this, parent, position);
+
+    public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitThrowsClause(this);
+    public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) => visitor.VisitThrowsClause(this);
+
+    public ThrowsClauseSyntax Update(SyntaxToken throwsKeyword, CoreSyntax.SeparatedSyntaxList<TypeSyntax> exceptionTypes)
+    {
+        if (throwsKeyword != this.ThrowsKeyword || exceptionTypes != this.ExceptionTypes)
+        {
+            var newNode = SyntaxFactory.ThrowsClause(throwsKeyword, exceptionTypes);
+            var diags = GetDiagnostics();
+            if (diags?.Length > 0)
+                newNode = newNode.WithDiagnosticsGreen(diags);
+            var annotations = GetAnnotations();
+            if (annotations?.Length > 0)
+                newNode = newNode.WithAnnotationsGreen(annotations);
+            return newNode;
+        }
+
+        return this;
+    }
+
+    internal override GreenNode SetDiagnostics(DiagnosticInfo[]? diagnostics)
+        => new ThrowsClauseSyntax(this.Kind, this.throwsKeyword, this.exceptionTypes, diagnostics, GetAnnotations());
+
+    internal override GreenNode SetAnnotations(SyntaxAnnotation[]? annotations)
+        => new ThrowsClauseSyntax(this.Kind, this.throwsKeyword, this.exceptionTypes, GetDiagnostics(), annotations);
+}
+
 /// <summary>Base type for type parameter constraint syntax.</summary>
 internal abstract partial class TypeParameterConstraintSyntax : CSharpSyntaxNode
 {
@@ -19552,14 +19640,15 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
     internal readonly TypeParameterListSyntax? typeParameterList;
     internal readonly ParameterListSyntax parameterList;
     internal readonly GreenNode? constraintClauses;
+    internal readonly ThrowsClauseSyntax? throwsClause;
     internal readonly BlockSyntax? body;
     internal readonly ArrowExpressionClauseSyntax? expressionBody;
     internal readonly SyntaxToken? semicolonToken;
 
-    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, DiagnosticInfo[]? diagnostics, SyntaxAnnotation[]? annotations)
+    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, DiagnosticInfo[]? diagnostics, SyntaxAnnotation[]? annotations)
       : base(kind, diagnostics, annotations)
     {
-        this.SlotCount = 11;
+        this.SlotCount = 12;
         if (attributeLists != null)
         {
             this.AdjustFlagsAndWidth(attributeLists);
@@ -19591,6 +19680,11 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
             this.AdjustFlagsAndWidth(constraintClauses);
             this.constraintClauses = constraintClauses;
         }
+        if (throwsClause != null)
+        {
+            this.AdjustFlagsAndWidth(throwsClause);
+            this.throwsClause = throwsClause;
+        }
         if (body != null)
         {
             this.AdjustFlagsAndWidth(body);
@@ -19608,11 +19702,11 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
         }
     }
 
-    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, SyntaxFactoryContext context)
+    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, SyntaxFactoryContext context)
       : base(kind)
     {
         this.SetFactoryContext(context);
-        this.SlotCount = 11;
+        this.SlotCount = 12;
         if (attributeLists != null)
         {
             this.AdjustFlagsAndWidth(attributeLists);
@@ -19643,6 +19737,11 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
         {
             this.AdjustFlagsAndWidth(constraintClauses);
             this.constraintClauses = constraintClauses;
+        }
+        if (throwsClause != null)
+        {
+            this.AdjustFlagsAndWidth(throwsClause);
+            this.throwsClause = throwsClause;
         }
         if (body != null)
         {
@@ -19661,10 +19760,10 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
         }
     }
 
-    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
+    internal MethodDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, GreenNode? constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
       : base(kind)
     {
-        this.SlotCount = 11;
+        this.SlotCount = 12;
         if (attributeLists != null)
         {
             this.AdjustFlagsAndWidth(attributeLists);
@@ -19695,6 +19794,11 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
         {
             this.AdjustFlagsAndWidth(constraintClauses);
             this.constraintClauses = constraintClauses;
+        }
+        if (throwsClause != null)
+        {
+            this.AdjustFlagsAndWidth(throwsClause);
+            this.throwsClause = throwsClause;
         }
         if (body != null)
         {
@@ -19724,6 +19828,8 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
     public override ParameterListSyntax ParameterList => this.parameterList;
     /// <summary>Gets the constraint clause list.</summary>
     public CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> ConstraintClauses => new CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax>(this.constraintClauses);
+    /// <summary>Gets the optional throws clause.</summary>
+    public ThrowsClauseSyntax? ThrowsClause => this.throwsClause;
     public override BlockSyntax? Body => this.body;
     public override ArrowExpressionClauseSyntax? ExpressionBody => this.expressionBody;
     /// <summary>Gets the optional semicolon token.</summary>
@@ -19740,9 +19846,10 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
             5 => this.typeParameterList,
             6 => this.parameterList,
             7 => this.constraintClauses,
-            8 => this.body,
-            9 => this.expressionBody,
-            10 => this.semicolonToken,
+            8 => this.throwsClause,
+            9 => this.body,
+            10 => this.expressionBody,
+            11 => this.semicolonToken,
             _ => null,
         };
 
@@ -19751,11 +19858,11 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
     public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitMethodDeclaration(this);
     public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) => visitor.VisitMethodDeclaration(this);
 
-    public MethodDeclarationSyntax Update(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, BlockSyntax body, ArrowExpressionClauseSyntax expressionBody, SyntaxToken semicolonToken)
+    public MethodDeclarationSyntax Update(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, ThrowsClauseSyntax throwsClause, BlockSyntax body, ArrowExpressionClauseSyntax expressionBody, SyntaxToken semicolonToken)
     {
-        if (attributeLists != this.AttributeLists || modifiers != this.Modifiers || returnType != this.ReturnType || explicitInterfaceSpecifier != this.ExplicitInterfaceSpecifier || identifier != this.Identifier || typeParameterList != this.TypeParameterList || parameterList != this.ParameterList || constraintClauses != this.ConstraintClauses || body != this.Body || expressionBody != this.ExpressionBody || semicolonToken != this.SemicolonToken)
+        if (attributeLists != this.AttributeLists || modifiers != this.Modifiers || returnType != this.ReturnType || explicitInterfaceSpecifier != this.ExplicitInterfaceSpecifier || identifier != this.Identifier || typeParameterList != this.TypeParameterList || parameterList != this.ParameterList || constraintClauses != this.ConstraintClauses || throwsClause != this.ThrowsClause || body != this.Body || expressionBody != this.ExpressionBody || semicolonToken != this.SemicolonToken)
         {
-            var newNode = SyntaxFactory.MethodDeclaration(attributeLists, modifiers, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses, body, expressionBody, semicolonToken);
+            var newNode = SyntaxFactory.MethodDeclaration(attributeLists, modifiers, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses, throwsClause, body, expressionBody, semicolonToken);
             var diags = GetDiagnostics();
             if (diags?.Length > 0)
                 newNode = newNode.WithDiagnosticsGreen(diags);
@@ -19769,10 +19876,10 @@ internal sealed partial class MethodDeclarationSyntax : BaseMethodDeclarationSyn
     }
 
     internal override GreenNode SetDiagnostics(DiagnosticInfo[]? diagnostics)
-        => new MethodDeclarationSyntax(this.Kind, this.attributeLists, this.modifiers, this.returnType, this.explicitInterfaceSpecifier, this.identifier, this.typeParameterList, this.parameterList, this.constraintClauses, this.body, this.expressionBody, this.semicolonToken, diagnostics, GetAnnotations());
+        => new MethodDeclarationSyntax(this.Kind, this.attributeLists, this.modifiers, this.returnType, this.explicitInterfaceSpecifier, this.identifier, this.typeParameterList, this.parameterList, this.constraintClauses, this.throwsClause, this.body, this.expressionBody, this.semicolonToken, diagnostics, GetAnnotations());
 
     internal override GreenNode SetAnnotations(SyntaxAnnotation[]? annotations)
-        => new MethodDeclarationSyntax(this.Kind, this.attributeLists, this.modifiers, this.returnType, this.explicitInterfaceSpecifier, this.identifier, this.typeParameterList, this.parameterList, this.constraintClauses, this.body, this.expressionBody, this.semicolonToken, GetDiagnostics(), annotations);
+        => new MethodDeclarationSyntax(this.Kind, this.attributeLists, this.modifiers, this.returnType, this.explicitInterfaceSpecifier, this.identifier, this.typeParameterList, this.parameterList, this.constraintClauses, this.throwsClause, this.body, this.expressionBody, this.semicolonToken, GetDiagnostics(), annotations);
 }
 
 /// <summary>Operator declaration syntax.</summary>
@@ -27119,6 +27226,7 @@ internal partial class CSharpSyntaxVisitor<TResult>
     public virtual TResult VisitSimpleBaseType(SimpleBaseTypeSyntax node) => this.DefaultVisit(node);
     public virtual TResult VisitPrimaryConstructorBaseType(PrimaryConstructorBaseTypeSyntax node) => this.DefaultVisit(node);
     public virtual TResult VisitTypeParameterConstraintClause(TypeParameterConstraintClauseSyntax node) => this.DefaultVisit(node);
+    public virtual TResult VisitThrowsClause(ThrowsClauseSyntax node) => this.DefaultVisit(node);
     public virtual TResult VisitConstructorConstraint(ConstructorConstraintSyntax node) => this.DefaultVisit(node);
     public virtual TResult VisitClassOrStructConstraint(ClassOrStructConstraintSyntax node) => this.DefaultVisit(node);
     public virtual TResult VisitTypeConstraint(TypeConstraintSyntax node) => this.DefaultVisit(node);
@@ -27370,6 +27478,7 @@ internal partial class CSharpSyntaxVisitor
     public virtual void VisitSimpleBaseType(SimpleBaseTypeSyntax node) => this.DefaultVisit(node);
     public virtual void VisitPrimaryConstructorBaseType(PrimaryConstructorBaseTypeSyntax node) => this.DefaultVisit(node);
     public virtual void VisitTypeParameterConstraintClause(TypeParameterConstraintClauseSyntax node) => this.DefaultVisit(node);
+    public virtual void VisitThrowsClause(ThrowsClauseSyntax node) => this.DefaultVisit(node);
     public virtual void VisitConstructorConstraint(ConstructorConstraintSyntax node) => this.DefaultVisit(node);
     public virtual void VisitClassOrStructConstraint(ClassOrStructConstraintSyntax node) => this.DefaultVisit(node);
     public virtual void VisitTypeConstraint(TypeConstraintSyntax node) => this.DefaultVisit(node);
@@ -27971,6 +28080,9 @@ internal partial class CSharpSyntaxRewriter : CSharpSyntaxVisitor<CSharpSyntaxNo
     public override CSharpSyntaxNode VisitTypeParameterConstraintClause(TypeParameterConstraintClauseSyntax node)
         => node.Update((SyntaxToken)Visit(node.WhereKeyword), (IdentifierNameSyntax)Visit(node.Name), (SyntaxToken)Visit(node.ColonToken), VisitList(node.Constraints));
 
+    public override CSharpSyntaxNode VisitThrowsClause(ThrowsClauseSyntax node)
+        => node.Update((SyntaxToken)Visit(node.ThrowsKeyword), VisitList(node.ExceptionTypes));
+
     public override CSharpSyntaxNode VisitConstructorConstraint(ConstructorConstraintSyntax node)
         => node.Update((SyntaxToken)Visit(node.NewKeyword), (SyntaxToken)Visit(node.OpenParenToken), (SyntaxToken)Visit(node.CloseParenToken));
 
@@ -27999,7 +28111,7 @@ internal partial class CSharpSyntaxRewriter : CSharpSyntaxVisitor<CSharpSyntaxNo
         => node.Update((NameSyntax)Visit(node.Name), (SyntaxToken)Visit(node.DotToken));
 
     public override CSharpSyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
-        => node.Update(VisitList(node.AttributeLists), VisitList(node.Modifiers), (TypeSyntax)Visit(node.ReturnType), (ExplicitInterfaceSpecifierSyntax)Visit(node.ExplicitInterfaceSpecifier), (SyntaxToken)Visit(node.Identifier), (TypeParameterListSyntax)Visit(node.TypeParameterList), (ParameterListSyntax)Visit(node.ParameterList), VisitList(node.ConstraintClauses), (BlockSyntax)Visit(node.Body), (ArrowExpressionClauseSyntax)Visit(node.ExpressionBody), (SyntaxToken)Visit(node.SemicolonToken));
+        => node.Update(VisitList(node.AttributeLists), VisitList(node.Modifiers), (TypeSyntax)Visit(node.ReturnType), (ExplicitInterfaceSpecifierSyntax)Visit(node.ExplicitInterfaceSpecifier), (SyntaxToken)Visit(node.Identifier), (TypeParameterListSyntax)Visit(node.TypeParameterList), (ParameterListSyntax)Visit(node.ParameterList), VisitList(node.ConstraintClauses), (ThrowsClauseSyntax)Visit(node.ThrowsClause), (BlockSyntax)Visit(node.Body), (ArrowExpressionClauseSyntax)Visit(node.ExpressionBody), (SyntaxToken)Visit(node.SemicolonToken));
 
     public override CSharpSyntaxNode VisitOperatorDeclaration(OperatorDeclarationSyntax node)
         => node.Update(VisitList(node.AttributeLists), VisitList(node.Modifiers), (TypeSyntax)Visit(node.ReturnType), (ExplicitInterfaceSpecifierSyntax)Visit(node.ExplicitInterfaceSpecifier), (SyntaxToken)Visit(node.OperatorKeyword), (SyntaxToken)Visit(node.CheckedKeyword), (SyntaxToken)Visit(node.OperatorToken), (ParameterListSyntax)Visit(node.ParameterList), (BlockSyntax)Visit(node.Body), (ArrowExpressionClauseSyntax)Visit(node.ExpressionBody), (SyntaxToken)Visit(node.SemicolonToken));
@@ -32000,6 +32112,26 @@ internal partial class ContextAwareSyntax
         return new TypeParameterConstraintClauseSyntax(SyntaxKind.TypeParameterConstraintClause, whereKeyword, name, colonToken, constraints.Node, this.context);
     }
 
+    public ThrowsClauseSyntax ThrowsClause(SyntaxToken throwsKeyword, CoreSyntax.SeparatedSyntaxList<TypeSyntax> exceptionTypes)
+    {
+#if DEBUG
+        if (throwsKeyword == null) throw new ArgumentNullException(nameof(throwsKeyword));
+        if (throwsKeyword.Kind != SyntaxKind.ThrowsKeyword) throw new ArgumentException(nameof(throwsKeyword));
+#endif
+
+        int hash;
+        var cached = CSharpSyntaxNodeCache.TryGetNode((int)SyntaxKind.ThrowsClause, throwsKeyword, exceptionTypes.Node, this.context, out hash);
+        if (cached != null) return (ThrowsClauseSyntax)cached;
+
+        var result = new ThrowsClauseSyntax(SyntaxKind.ThrowsClause, throwsKeyword, exceptionTypes.Node, this.context);
+        if (hash >= 0)
+        {
+            SyntaxNodeCache.AddNode(result, hash);
+        }
+
+        return result;
+    }
+
     public ConstructorConstraintSyntax ConstructorConstraint(SyntaxToken newKeyword, SyntaxToken openParenToken, SyntaxToken closeParenToken)
     {
 #if DEBUG
@@ -32190,7 +32322,7 @@ internal partial class ContextAwareSyntax
         return result;
     }
 
-    public MethodDeclarationSyntax MethodDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
+    public MethodDeclarationSyntax MethodDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
     {
 #if DEBUG
         if (returnType == null) throw new ArgumentNullException(nameof(returnType));
@@ -32208,7 +32340,7 @@ internal partial class ContextAwareSyntax
         }
 #endif
 
-        return new MethodDeclarationSyntax(SyntaxKind.MethodDeclaration, attributeLists.Node, modifiers.Node, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses.Node, body, expressionBody, semicolonToken, this.context);
+        return new MethodDeclarationSyntax(SyntaxKind.MethodDeclaration, attributeLists.Node, modifiers.Node, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses.Node, throwsClause, body, expressionBody, semicolonToken, this.context);
     }
 
     public OperatorDeclarationSyntax OperatorDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken operatorKeyword, SyntaxToken? checkedKeyword, SyntaxToken operatorToken, ParameterListSyntax parameterList, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
@@ -37367,6 +37499,26 @@ internal static partial class SyntaxFactory
         return new TypeParameterConstraintClauseSyntax(SyntaxKind.TypeParameterConstraintClause, whereKeyword, name, colonToken, constraints.Node);
     }
 
+    public static ThrowsClauseSyntax ThrowsClause(SyntaxToken throwsKeyword, CoreSyntax.SeparatedSyntaxList<TypeSyntax> exceptionTypes)
+    {
+#if DEBUG
+        if (throwsKeyword == null) throw new ArgumentNullException(nameof(throwsKeyword));
+        if (throwsKeyword.Kind != SyntaxKind.ThrowsKeyword) throw new ArgumentException(nameof(throwsKeyword));
+#endif
+
+        int hash;
+        var cached = SyntaxNodeCache.TryGetNode((int)SyntaxKind.ThrowsClause, throwsKeyword, exceptionTypes.Node, out hash);
+        if (cached != null) return (ThrowsClauseSyntax)cached;
+
+        var result = new ThrowsClauseSyntax(SyntaxKind.ThrowsClause, throwsKeyword, exceptionTypes.Node);
+        if (hash >= 0)
+        {
+            SyntaxNodeCache.AddNode(result, hash);
+        }
+
+        return result;
+    }
+
     public static ConstructorConstraintSyntax ConstructorConstraint(SyntaxToken newKeyword, SyntaxToken openParenToken, SyntaxToken closeParenToken)
     {
 #if DEBUG
@@ -37557,7 +37709,7 @@ internal static partial class SyntaxFactory
         return result;
     }
 
-    public static MethodDeclarationSyntax MethodDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
+    public static MethodDeclarationSyntax MethodDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax parameterList, CoreSyntax.SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, ThrowsClauseSyntax? throwsClause, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
     {
 #if DEBUG
         if (returnType == null) throw new ArgumentNullException(nameof(returnType));
@@ -37575,7 +37727,7 @@ internal static partial class SyntaxFactory
         }
 #endif
 
-        return new MethodDeclarationSyntax(SyntaxKind.MethodDeclaration, attributeLists.Node, modifiers.Node, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses.Node, body, expressionBody, semicolonToken);
+        return new MethodDeclarationSyntax(SyntaxKind.MethodDeclaration, attributeLists.Node, modifiers.Node, returnType, explicitInterfaceSpecifier, identifier, typeParameterList, parameterList, constraintClauses.Node, throwsClause, body, expressionBody, semicolonToken);
     }
 
     public static OperatorDeclarationSyntax OperatorDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax returnType, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken operatorKeyword, SyntaxToken? checkedKeyword, SyntaxToken operatorToken, ParameterListSyntax parameterList, BlockSyntax? body, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)

@@ -131,6 +131,12 @@ namespace Microsoft.CodeAnalysis
         ImmutableArray<IParameterSymbol> Parameters { get; }
 
         /// <summary>
+        /// Gets the exception types declared in the throws clause of this method.
+        /// Returns an empty array if the method has no throws clause.
+        /// </summary>
+        ImmutableArray<ITypeSymbol> ThrowsTypes { get; }
+
+        /// <summary>
         /// Returns the method symbol that this method was constructed from. The resulting
         /// method symbol
         /// has the same containing type (if any), but has type arguments that are the same

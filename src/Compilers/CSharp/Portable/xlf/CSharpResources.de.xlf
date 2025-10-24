@@ -657,6 +657,11 @@
         <target state="translated">Ein Rückgabetyp darf nur einen Modifizierer "{0}" aufweisen.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_DuplicateExceptionTypeInThrowsClause">
+        <source>Duplicate exception type '{0}' in throws clause</source>
+        <target state="new">Duplicate exception type '{0}' in throws clause</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_DuplicateExplicitImpl">
         <source>'{0}' is explicitly implemented more than once.</source>
         <target state="translated">"{0}" ist mehrfach explizit implementiert.</target>
@@ -1322,6 +1327,11 @@
         <target state="translated">Version „{0}“ des Interceptorformats wird nicht unterstützt. Die neueste unterstützte Version ist „1“.</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface">
+        <source>'{0}': interface implementation throws exception type '{1}' not declared in interface method</source>
+        <target state="new">'{0}': interface implementation throws exception type '{1}' not declared in interface method</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_InterfaceImplementedByUnmanagedCallersOnlyMethod">
         <source>'UnmanagedCallersOnly' method '{0}' cannot implement interface member '{1}' in type '{2}'</source>
         <target state="translated">Die Methode „UnmanagedCallersOnly“ „{0}“ kann das Schnittstellenelement „{1}“ im Typ „{2}“ nicht implementieren.</target>
@@ -1830,6 +1840,11 @@
       <trans-unit id="ERR_OverrideRefConstraintNotSatisfied">
         <source>Method '{0}' specifies a 'class' constraint for type parameter '{1}', but corresponding type parameter '{2}' of overridden or explicitly implemented method '{3}' is not a reference type.</source>
         <target state="translated">Die Methode "{0}" gibt eine class-Einschränkung für den Typparameter "{1}" an, aber der zugehörige Typparameter "{2}" der außer Kraft gesetzten oder explizit implementierten Methode "{3}" ist kein Verweistyp.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_OverrideThrowsExceptionNotDeclaredByBase">
+        <source>'{0}': override method throws exception type '{1}' not declared in base method</source>
+        <target state="new">'{0}': override method throws exception type '{1}' not declared in base method</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_OverrideValConstraintNotSatisfied">
@@ -2465,6 +2480,16 @@
       <trans-unit id="ERR_SymbolDefinedInAssembly">
         <source>'{0}' is defined in assembly '{1}'.</source>
         <target state="translated">"{0}" ist in Assembly "{1}" definiert.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_ThrowsClauseNotAllowedOnMemberKind">
+        <source>Throws clause is not allowed on {0}</source>
+        <target state="new">Throws clause is not allowed on {0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_ThrowsClauseTypeMustDeriveFromException">
+        <source>Throws clause type '{0}' does not derive from 'System.Exception'</source>
+        <target state="new">Throws clause type '{0}' does not derive from 'System.Exception'</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_TooManyCloseBracesForRawString">

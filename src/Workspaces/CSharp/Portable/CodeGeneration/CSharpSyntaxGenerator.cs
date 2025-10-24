@@ -243,6 +243,7 @@ internal sealed class CSharpSyntaxGenerator() : SyntaxGenerator
             typeParameterList: AsTypeParameterList(typeParameters),
             parameterList: AsParameterList(parameters),
             constraintClauses: default,
+            throwsClause: null,
             body: hasBody ? CreateBlock(statements) : null,
             expressionBody: null,
             semicolonToken: !hasBody ? SemicolonToken : default);

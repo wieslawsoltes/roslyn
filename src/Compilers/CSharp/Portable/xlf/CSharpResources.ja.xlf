@@ -657,6 +657,11 @@
         <target state="translated">戻り値の型には '{0}' 修飾子を 1 つだけ指定できます。</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_DuplicateExceptionTypeInThrowsClause">
+        <source>Duplicate exception type '{0}' in throws clause</source>
+        <target state="new">Duplicate exception type '{0}' in throws clause</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_DuplicateExplicitImpl">
         <source>'{0}' is explicitly implemented more than once.</source>
         <target state="translated">'{0}' が複数回、明示的に実装されています。</target>
@@ -1322,6 +1327,11 @@
         <target state="translated">インターセプター形式のバージョン '{0}' はサポートされていません。サポートされている最新バージョンは '1' です。</target>
         <note />
       </trans-unit>
+      <trans-unit id="ERR_InterfaceImplementationThrowsExceptionNotDeclaredByInterface">
+        <source>'{0}': interface implementation throws exception type '{1}' not declared in interface method</source>
+        <target state="new">'{0}': interface implementation throws exception type '{1}' not declared in interface method</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ERR_InterfaceImplementedByUnmanagedCallersOnlyMethod">
         <source>'UnmanagedCallersOnly' method '{0}' cannot implement interface member '{1}' in type '{2}'</source>
         <target state="translated">'UnmanagedCallersOnly' メソッド '{0}' は、インターフェイス メンバー '{1}' を型 '{2}' で実装できません</target>
@@ -1830,6 +1840,11 @@
       <trans-unit id="ERR_OverrideRefConstraintNotSatisfied">
         <source>Method '{0}' specifies a 'class' constraint for type parameter '{1}', but corresponding type parameter '{2}' of overridden or explicitly implemented method '{3}' is not a reference type.</source>
         <target state="translated">メソッド '{0}' は、型パラメーター '{1}' に対して 'class' 制約を指定していますが、オーバーライドされた、または明示的に実装されたメソッド '{3}' の対応する型パラメーター '{2}' は参照型ではありません。</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_OverrideThrowsExceptionNotDeclaredByBase">
+        <source>'{0}': override method throws exception type '{1}' not declared in base method</source>
+        <target state="new">'{0}': override method throws exception type '{1}' not declared in base method</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_OverrideValConstraintNotSatisfied">
@@ -2465,6 +2480,16 @@
       <trans-unit id="ERR_SymbolDefinedInAssembly">
         <source>'{0}' is defined in assembly '{1}'.</source>
         <target state="translated">'{0}' はアセンブリ '{1}' で定義されています。</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_ThrowsClauseNotAllowedOnMemberKind">
+        <source>Throws clause is not allowed on {0}</source>
+        <target state="new">Throws clause is not allowed on {0}</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="ERR_ThrowsClauseTypeMustDeriveFromException">
+        <source>Throws clause type '{0}' does not derive from 'System.Exception'</source>
+        <target state="new">Throws clause type '{0}' does not derive from 'System.Exception'</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_TooManyCloseBracesForRawString">

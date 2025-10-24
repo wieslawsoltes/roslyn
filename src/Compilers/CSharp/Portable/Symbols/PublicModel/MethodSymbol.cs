@@ -131,6 +131,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
             }
         }
 
+        ImmutableArray<ITypeSymbol> IMethodSymbol.ThrowsTypes
+        {
+            get
+            {
+                return _underlying.ThrowsTypes.GetPublicSymbols();
+            }
+        }
+
         IMethodSymbol IMethodSymbol.ConstructedFrom
         {
             get

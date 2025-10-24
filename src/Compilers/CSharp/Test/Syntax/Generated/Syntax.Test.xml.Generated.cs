@@ -535,6 +535,9 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         private static Syntax.InternalSyntax.TypeParameterConstraintClauseSyntax GenerateTypeParameterConstraintClause()
             => InternalSyntaxFactory.TypeParameterConstraintClause(InternalSyntaxFactory.Token(SyntaxKind.WhereKeyword), GenerateIdentifierName(), InternalSyntaxFactory.Token(SyntaxKind.ColonToken), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SeparatedSyntaxList<Syntax.InternalSyntax.TypeParameterConstraintSyntax>());
 
+        private static Syntax.InternalSyntax.ThrowsClauseSyntax GenerateThrowsClause()
+            => InternalSyntaxFactory.ThrowsClause(InternalSyntaxFactory.Token(SyntaxKind.ThrowsKeyword), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SeparatedSyntaxList<Syntax.InternalSyntax.TypeSyntax>());
+
         private static Syntax.InternalSyntax.ConstructorConstraintSyntax GenerateConstructorConstraint()
             => InternalSyntaxFactory.ConstructorConstraint(InternalSyntaxFactory.Token(SyntaxKind.NewKeyword), InternalSyntaxFactory.Token(SyntaxKind.OpenParenToken), InternalSyntaxFactory.Token(SyntaxKind.CloseParenToken));
 
@@ -563,7 +566,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             => InternalSyntaxFactory.ExplicitInterfaceSpecifier(GenerateIdentifierName(), InternalSyntaxFactory.Token(SyntaxKind.DotToken));
 
         private static Syntax.InternalSyntax.MethodDeclarationSyntax GenerateMethodDeclaration()
-            => InternalSyntaxFactory.MethodDeclaration(new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.AttributeListSyntax>(), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.SyntaxToken>(), GenerateIdentifierName(), null, InternalSyntaxFactory.Identifier("Identifier"), null, GenerateParameterList(), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.TypeParameterConstraintClauseSyntax>(), null, null, null);
+            => InternalSyntaxFactory.MethodDeclaration(new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.AttributeListSyntax>(), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.SyntaxToken>(), GenerateIdentifierName(), null, InternalSyntaxFactory.Identifier("Identifier"), null, GenerateParameterList(), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.TypeParameterConstraintClauseSyntax>(), null, null, null, null);
 
         private static Syntax.InternalSyntax.OperatorDeclarationSyntax GenerateOperatorDeclaration()
             => InternalSyntaxFactory.OperatorDeclaration(new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.AttributeListSyntax>(), new Microsoft.CodeAnalysis.Syntax.InternalSyntax.SyntaxList<Syntax.InternalSyntax.SyntaxToken>(), GenerateIdentifierName(), null, InternalSyntaxFactory.Token(SyntaxKind.OperatorKeyword), null, InternalSyntaxFactory.Token(SyntaxKind.PlusToken), GenerateParameterList(), null, null, null);
@@ -2965,6 +2968,17 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         }
 
         [Fact]
+        public void TestThrowsClauseFactoryAndProperties()
+        {
+            var node = GenerateThrowsClause();
+
+            Assert.Equal(SyntaxKind.ThrowsKeyword, node.ThrowsKeyword.Kind);
+            Assert.Equal(default, node.ExceptionTypes);
+
+            AttachAndCheckDiagnostics(node);
+        }
+
+        [Fact]
         public void TestConstructorConstraintFactoryAndProperties()
         {
             var node = GenerateConstructorConstraint();
@@ -3080,6 +3094,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.Null(node.TypeParameterList);
             Assert.NotNull(node.ParameterList);
             Assert.Equal(default, node.ConstraintClauses);
+            Assert.Null(node.ThrowsClause);
             Assert.Null(node.Body);
             Assert.Null(node.ExpressionBody);
             Assert.Null(node.SemicolonToken);
@@ -8484,6 +8499,32 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         }
 
         [Fact]
+        public void TestThrowsClauseTokenDeleteRewriter()
+        {
+            var oldNode = GenerateThrowsClause();
+            var rewriter = new TokenDeleteRewriter();
+            var newNode = rewriter.Visit(oldNode);
+
+            if(!oldNode.IsMissing)
+            {
+                Assert.NotEqual(oldNode, newNode);
+            }
+
+            Assert.NotNull(newNode);
+            Assert.True(newNode.IsMissing, "No tokens => missing");
+        }
+
+        [Fact]
+        public void TestThrowsClauseIdentityRewriter()
+        {
+            var oldNode = GenerateThrowsClause();
+            var rewriter = new IdentityRewriter();
+            var newNode = rewriter.Visit(oldNode);
+
+            Assert.Same(oldNode, newNode);
+        }
+
+        [Fact]
         public void TestConstructorConstraintTokenDeleteRewriter()
         {
             var oldNode = GenerateConstructorConstraint();
@@ -10885,6 +10926,9 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         private static TypeParameterConstraintClauseSyntax GenerateTypeParameterConstraintClause()
             => SyntaxFactory.TypeParameterConstraintClause(SyntaxFactory.Token(SyntaxKind.WhereKeyword), GenerateIdentifierName(), SyntaxFactory.Token(SyntaxKind.ColonToken), new SeparatedSyntaxList<TypeParameterConstraintSyntax>());
 
+        private static ThrowsClauseSyntax GenerateThrowsClause()
+            => SyntaxFactory.ThrowsClause(SyntaxFactory.Token(SyntaxKind.ThrowsKeyword), new SeparatedSyntaxList<TypeSyntax>());
+
         private static ConstructorConstraintSyntax GenerateConstructorConstraint()
             => SyntaxFactory.ConstructorConstraint(SyntaxFactory.Token(SyntaxKind.NewKeyword), SyntaxFactory.Token(SyntaxKind.OpenParenToken), SyntaxFactory.Token(SyntaxKind.CloseParenToken));
 
@@ -10913,7 +10957,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             => SyntaxFactory.ExplicitInterfaceSpecifier(GenerateIdentifierName(), SyntaxFactory.Token(SyntaxKind.DotToken));
 
         private static MethodDeclarationSyntax GenerateMethodDeclaration()
-            => SyntaxFactory.MethodDeclaration(new SyntaxList<AttributeListSyntax>(), new SyntaxTokenList(), GenerateIdentifierName(), default(ExplicitInterfaceSpecifierSyntax), SyntaxFactory.Identifier("Identifier"), default(TypeParameterListSyntax), GenerateParameterList(), new SyntaxList<TypeParameterConstraintClauseSyntax>(), default(BlockSyntax), default(ArrowExpressionClauseSyntax), default(SyntaxToken));
+            => SyntaxFactory.MethodDeclaration(new SyntaxList<AttributeListSyntax>(), new SyntaxTokenList(), GenerateIdentifierName(), default(ExplicitInterfaceSpecifierSyntax), SyntaxFactory.Identifier("Identifier"), default(TypeParameterListSyntax), GenerateParameterList(), new SyntaxList<TypeParameterConstraintClauseSyntax>(), default(ThrowsClauseSyntax), default(BlockSyntax), default(ArrowExpressionClauseSyntax), default(SyntaxToken));
 
         private static OperatorDeclarationSyntax GenerateOperatorDeclaration()
             => SyntaxFactory.OperatorDeclaration(new SyntaxList<AttributeListSyntax>(), new SyntaxTokenList(), GenerateIdentifierName(), default(ExplicitInterfaceSpecifierSyntax), SyntaxFactory.Token(SyntaxKind.OperatorKeyword), default(SyntaxToken), SyntaxFactory.Token(SyntaxKind.PlusToken), GenerateParameterList(), default(BlockSyntax), default(ArrowExpressionClauseSyntax), default(SyntaxToken));
@@ -13315,6 +13359,17 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         }
 
         [Fact]
+        public void TestThrowsClauseFactoryAndProperties()
+        {
+            var node = GenerateThrowsClause();
+
+            Assert.Equal(SyntaxKind.ThrowsKeyword, node.ThrowsKeyword.Kind());
+            Assert.Equal(default, node.ExceptionTypes);
+            var newNode = node.WithThrowsKeyword(node.ThrowsKeyword).WithExceptionTypes(node.ExceptionTypes);
+            Assert.Equal(node, newNode);
+        }
+
+        [Fact]
         public void TestConstructorConstraintFactoryAndProperties()
         {
             var node = GenerateConstructorConstraint();
@@ -13430,10 +13485,11 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.Null(node.TypeParameterList);
             Assert.NotNull(node.ParameterList);
             Assert.Equal(default, node.ConstraintClauses);
+            Assert.Null(node.ThrowsClause);
             Assert.Null(node.Body);
             Assert.Null(node.ExpressionBody);
             Assert.Equal(SyntaxKind.None, node.SemicolonToken.Kind());
-            var newNode = node.WithAttributeLists(node.AttributeLists).WithModifiers(node.Modifiers).WithReturnType(node.ReturnType).WithExplicitInterfaceSpecifier(node.ExplicitInterfaceSpecifier).WithIdentifier(node.Identifier).WithTypeParameterList(node.TypeParameterList).WithParameterList(node.ParameterList).WithConstraintClauses(node.ConstraintClauses).WithBody(node.Body).WithExpressionBody(node.ExpressionBody).WithSemicolonToken(node.SemicolonToken);
+            var newNode = node.WithAttributeLists(node.AttributeLists).WithModifiers(node.Modifiers).WithReturnType(node.ReturnType).WithExplicitInterfaceSpecifier(node.ExplicitInterfaceSpecifier).WithIdentifier(node.Identifier).WithTypeParameterList(node.TypeParameterList).WithParameterList(node.ParameterList).WithConstraintClauses(node.ConstraintClauses).WithThrowsClause(node.ThrowsClause).WithBody(node.Body).WithExpressionBody(node.ExpressionBody).WithSemicolonToken(node.SemicolonToken);
             Assert.Equal(node, newNode);
         }
 
@@ -18827,6 +18883,32 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         public void TestTypeParameterConstraintClauseIdentityRewriter()
         {
             var oldNode = GenerateTypeParameterConstraintClause();
+            var rewriter = new IdentityRewriter();
+            var newNode = rewriter.Visit(oldNode);
+
+            Assert.Same(oldNode, newNode);
+        }
+
+        [Fact]
+        public void TestThrowsClauseTokenDeleteRewriter()
+        {
+            var oldNode = GenerateThrowsClause();
+            var rewriter = new TokenDeleteRewriter();
+            var newNode = rewriter.Visit(oldNode);
+
+            if(!oldNode.IsMissing)
+            {
+                Assert.NotEqual(oldNode, newNode);
+            }
+
+            Assert.NotNull(newNode);
+            Assert.True(newNode.IsMissing, "No tokens => missing");
+        }
+
+        [Fact]
+        public void TestThrowsClauseIdentityRewriter()
+        {
+            var oldNode = GenerateThrowsClause();
             var rewriter = new IdentityRewriter();
             var newNode = rewriter.Visit(oldNode);
 
