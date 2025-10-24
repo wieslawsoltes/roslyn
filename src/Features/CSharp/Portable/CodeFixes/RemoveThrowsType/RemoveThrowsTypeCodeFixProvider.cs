@@ -22,9 +22,12 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.RemoveThrowsType;
 [method: SuppressMessage("RoslynDiagnosticsReliability", "RS0033:Importing constructor should be [Obsolete]", Justification = "Used in test code: https://github.com/dotnet/roslyn/issues/42814")]
 internal sealed class RemoveThrowsTypeCodeFixProvider() : CodeFixProvider
 {
-    // This code fix is triggered by the UnnecessaryThrowsTypeAnalyzer (IDE0391)
+    // This code fix is triggered by:
+    // - UnnecessaryThrowsTypeAnalyzer (IDE0391)
+    // - RedundantThrowsTypeAnalyzer (IDE0392)
     public override ImmutableArray<string> FixableDiagnosticIds { get; }
-        = [IDEDiagnosticIds.UnnecessaryThrowsTypeDiagnosticId];
+        = [IDEDiagnosticIds.UnnecessaryThrowsTypeDiagnosticId,
+           IDEDiagnosticIds.RedundantThrowsTypeDiagnosticId];
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;

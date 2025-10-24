@@ -217,6 +217,7 @@ internal static class IDEDiagnosticIds
 
     public const string MissingThrowsTypeDiagnosticId = "IDE0390";
     public const string UnnecessaryThrowsTypeDiagnosticId = "IDE0391";
+    public const string RedundantThrowsTypeDiagnosticId = "IDE0392";
 
     // Analyzer error Ids
     public const string AnalyzerChangedId = "IDE1001";

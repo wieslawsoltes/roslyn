@@ -455,4 +455,11 @@
   <data name="Exception_0_is_declared_but_never_thrown" xml:space="preserve">
     <value>Exception '{0}' is declared but never thrown</value>
   </data>
+  <data name="Redundant_throws_type" xml:space="preserve">
+    <value>Redundant 'throws' type</value>
+    <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
+  </data>
+  <data name="Exception_0_is_redundant_base_type_1_is_already_declared" xml:space="preserve">
+    <value>Exception '{0}' is redundant; base type '{1}' is already declared</value>
+  </data>
 </root>

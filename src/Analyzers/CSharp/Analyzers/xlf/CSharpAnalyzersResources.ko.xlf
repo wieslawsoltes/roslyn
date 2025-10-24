@@ -87,6 +87,11 @@
         <target state="new">Exception '{0}' is declared but never thrown</target>
         <note />
       </trans-unit>
+      <trans-unit id="Exception_0_is_redundant_base_type_1_is_already_declared">
+        <source>Exception '{0}' is redundant; base type '{1}' is already declared</source>
+        <target state="new">Exception '{0}' is redundant; base type '{1}' is already declared</target>
+        <note />
+      </trans-unit>
       <trans-unit id="Exception_0_is_thrown_but_not_declared_in_throws_clause">
         <source>Exception '{0}' is thrown but not declared in 'throws' clause</source>
         <target state="new">Exception '{0}' is thrown but not declared in 'throws' clause</target>
@@ -201,6 +206,11 @@
         <source>Property pattern can be simplified</source>
         <target state="translated">속성 패턴을 간소화할 수 있습니다.</target>
         <note />
+      </trans-unit>
+      <trans-unit id="Redundant_throws_type">
+        <source>Redundant 'throws' type</source>
+        <target state="new">Redundant 'throws' type</target>
+        <note>{Locked="throws"} "throws" is a C# keyword and should not be localized.</note>
       </trans-unit>
       <trans-unit id="Remove_operator_preserves_semantics">
         <source>Remove operator (preserves semantics)</source>
