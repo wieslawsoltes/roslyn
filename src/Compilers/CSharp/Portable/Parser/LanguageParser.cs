@@ -3580,6 +3580,7 @@ parse_member_name:;
                 typeParameterList,
                 paramList,
                 _pool.ToListAndFree(constraints),
+                throwsClause: null, // TODO: Parse throws clause
                 blockBody,
                 expressionBody,
                 semicolon);
