@@ -423,6 +423,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         AllowsKeyword = 8450,
         /// <summary>Represents <see langword="extension"/>.</summary>
         ExtensionKeyword = 8451,
+        /// <summary>Represents <see langword="throws"/>.</summary>
+        ThrowsKeyword = 8452,
 
         // when adding a contextual keyword following functions must be adapted:
         // <see cref="SyntaxFacts.GetContextualKeywordKinds()"/>
@@ -932,5 +934,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ExtensionBlockDeclaration = 9079,
 
         IgnoredDirectiveTrivia = 9080,
+
+        ThrowsClause = 9081,
     }
 }
