@@ -39,7 +39,7 @@ internal abstract class AbstractOrdinaryMethodSignatureHelpProvider : AbstractCS
             c => method.OriginalDefinition.GetDocumentationParts(semanticModel, position, documentationCommentFormattingService, c),
             GetMethodGroupPreambleParts(method, semanticModel, position),
             GetSeparatorParts(),
-            GetMethodGroupPostambleParts(),
+            GetMethodGroupPostambleParts(method, semanticModel, position),
             [.. method.Parameters.Select(p => Convert(p, semanticModel, position, documentationCommentFormattingService))],
             descriptionParts: descriptionParts);
     }
@@ -84,6 +84,35 @@ internal abstract class AbstractOrdinaryMethodSignatureHelpProvider : AbstractCS
         return result;
     }
 
-    private static IList<SymbolDisplayPart> GetMethodGroupPostambleParts()
-        => [Punctuation(SyntaxKind.CloseParenToken)];
+    private static IList<SymbolDisplayPart> GetMethodGroupPostambleParts(
+        IMethodSymbol method,
+        SemanticModel semanticModel,
+        int position)
+    {
+        var result = new List<SymbolDisplayPart>
+        {
+            Punctuation(SyntaxKind.CloseParenToken)
+        };
+
+        // Add throws clause information if present
+        if (!method.ThrowsTypes.IsDefaultOrEmpty)
+        {
+            result.Add(Space());
+            result.Add(Keyword(SyntaxKind.ThrowsKeyword));
+            result.Add(Space());
+
+            for (var i = 0; i < method.ThrowsTypes.Length; i++)
+            {
+                if (i > 0)
+                {
+                    result.Add(Punctuation(SyntaxKind.CommaToken));
+                    result.Add(Space());
+                }
+
+                result.AddRange(method.ThrowsTypes[i].ToMinimalDisplayParts(semanticModel, position));
+            }
+        }
+
+        return result;
+    }
 }
