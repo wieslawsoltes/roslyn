@@ -164,7 +164,7 @@ internal abstract partial class AbstractSymbolDisplayService
 
             AddOverloadCountPart(symbols);
             FixAllStructuralTypes(firstSymbol);
-            AddExceptions(firstSymbolDocumentationComment);
+            AddExceptions(firstSymbol, firstSymbolDocumentationComment);
             AddCaptures(firstSymbol);
 
             AddDocumentationContent(firstSymbol, firstSymbolDocumentationComment);
@@ -284,18 +284,38 @@ internal abstract partial class AbstractSymbolDisplayService
             }
         }
 
-        private void AddExceptions(DocumentationComment documentationComment)
+        private void AddExceptions(ISymbol symbol, DocumentationComment documentationComment)
         {
-            if (documentationComment.ExceptionTypes.Any())
+            var hasDocumentationExceptions = documentationComment.ExceptionTypes.Any();
+            var hasThrowsClause = symbol is IMethodSymbol methodSymbol && !methodSymbol.ThrowsTypes.IsDefaultOrEmpty;
+
+            if (hasDocumentationExceptions || hasThrowsClause)
             {
                 var parts = new List<SymbolDisplayPart>();
                 parts.AddLineBreak();
                 parts.AddText(WorkspacesResources.Exceptions_colon);
-                foreach (var exceptionString in documentationComment.ExceptionTypes)
+
+                // Add throws clause types first (from method signature)
+                if (hasThrowsClause)
                 {
-                    parts.AddRange(LineBreak());
-                    parts.AddRange(Space(count: 2));
-                    parts.AddRange(AbstractDocumentationCommentFormattingService.CrefToSymbolDisplayParts(exceptionString, _position, _semanticModel));
+                    var methodSymbol = (IMethodSymbol)symbol;
+                    foreach (var exceptionType in methodSymbol.ThrowsTypes)
+                    {
+                        parts.AddRange(LineBreak());
+                        parts.AddRange(Space(count: 2));
+                        parts.AddRange(exceptionType.ToMinimalDisplayParts(_semanticModel, _position));
+                    }
+                }
+
+                // Then add XML documentation <exception> tags
+                if (hasDocumentationExceptions)
+                {
+                    foreach (var exceptionString in documentationComment.ExceptionTypes)
+                    {
+                        parts.AddRange(LineBreak());
+                        parts.AddRange(Space(count: 2));
+                        parts.AddRange(AbstractDocumentationCommentFormattingService.CrefToSymbolDisplayParts(exceptionString, _position, _semanticModel));
+                    }
                 }
 
                 AddToGroup(SymbolDescriptionGroups.Exceptions, parts);
