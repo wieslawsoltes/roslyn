@@ -448,4 +448,11 @@
     <value>Exception '{0}' is thrown but not declared in 'throws' clause</value>
     <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
   </data>
+  <data name="Unnecessary_throws_type" xml:space="preserve">
+    <value>Unnecessary 'throws' type</value>
+    <comment>{Locked="throws"} "throws" is a C# keyword and should not be localized.</comment>
+  </data>
+  <data name="Exception_0_is_declared_but_never_thrown" xml:space="preserve">
+    <value>Exception '{0}' is declared but never thrown</value>
+  </data>
 </root>
