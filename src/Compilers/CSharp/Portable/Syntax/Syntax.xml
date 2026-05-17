@@ -1646,6 +1646,60 @@
         </PropertyComment>
     </Field>
   </Node>
+  <Node Name="CsxAttributeSyntax" Base="CSharpSyntaxNode">
+    <Kind Name="CsxAttribute"/>
+    <Field Name="Identifier" Type="SyntaxToken" />
+    <Field Name="EqualsToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="EqualsToken"/>
+    </Field>
+    <Field Name="OpenBraceToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="OpenBraceToken"/>
+    </Field>
+    <Field Name="Expression" Type="ExpressionSyntax" Optional="true"/>
+    <Field Name="CloseBraceToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="CloseBraceToken"/>
+    </Field>
+  </Node>
+  <AbstractNode Name="CsxChildSyntax" Base="CSharpSyntaxNode" />
+  <Node Name="CsxExpressionChildSyntax" Base="CsxChildSyntax">
+    <Kind Name="CsxExpressionChild"/>
+    <Field Name="OpenBraceToken" Type="SyntaxToken">
+      <Kind Name="OpenBraceToken"/>
+    </Field>
+    <Field Name="Expression" Type="ExpressionSyntax"/>
+    <Field Name="CloseBraceToken" Type="SyntaxToken">
+      <Kind Name="CloseBraceToken"/>
+    </Field>
+  </Node>
+  <Node Name="CsxElementChildSyntax" Base="CsxChildSyntax">
+    <Kind Name="CsxElementChild"/>
+    <Field Name="Element" Type="CsxElementExpressionSyntax"/>
+  </Node>
+  <Node Name="CsxElementExpressionSyntax" Base="ExpressionSyntax">
+    <Kind Name="CsxElementExpression"/>
+    <Field Name="LessThanToken" Type="SyntaxToken">
+      <Kind Name="LessThanToken"/>
+    </Field>
+    <Field Name="Identifier" Type="SyntaxToken" />
+    <Field Name="Attributes" Type="SyntaxList&lt;CsxAttributeSyntax&gt;"/>
+    <Field Name="GreaterThanToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="GreaterThanToken"/>
+    </Field>
+    <Field Name="SlashGreaterThanToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="SlashGreaterThanToken"/>
+    </Field>
+    <Field Name="Children" Type="SyntaxList&lt;CsxChildSyntax&gt;"/>
+    <Field Name="EndLessThanToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="LessThanToken"/>
+    </Field>
+    <Field Name="EndSlashToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="SlashToken"/>
+    </Field>
+    <Field Name="EndIdentifier" Type="SyntaxToken" Optional="true" />
+    <Field Name="EndGreaterThanToken" Type="SyntaxToken" Optional="true">
+      <Kind Name="GreaterThanToken"/>
+    </Field>
+  </Node>
   <Node Name="AnonymousObjectMemberDeclaratorSyntax" Base="CSharpSyntaxNode">
     <Kind Name="AnonymousObjectMemberDeclarator"/>
     <Field Name="NameEquals" Type="NameEqualsSyntax" Optional="true">

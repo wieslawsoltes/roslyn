@@ -201,6 +201,18 @@ public partial class CSharpSyntaxVisitor<TResult>
     /// <summary>Called when the visitor visits a WithExpressionSyntax node.</summary>
     public virtual TResult? VisitWithExpression(WithExpressionSyntax node) => this.DefaultVisit(node);
 
+    /// <summary>Called when the visitor visits a CsxAttributeSyntax node.</summary>
+    public virtual TResult? VisitCsxAttribute(CsxAttributeSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxExpressionChildSyntax node.</summary>
+    public virtual TResult? VisitCsxExpressionChild(CsxExpressionChildSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxElementChildSyntax node.</summary>
+    public virtual TResult? VisitCsxElementChild(CsxElementChildSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxElementExpressionSyntax node.</summary>
+    public virtual TResult? VisitCsxElementExpression(CsxElementExpressionSyntax node) => this.DefaultVisit(node);
+
     /// <summary>Called when the visitor visits a AnonymousObjectMemberDeclaratorSyntax node.</summary>
     public virtual TResult? VisitAnonymousObjectMemberDeclarator(AnonymousObjectMemberDeclaratorSyntax node) => this.DefaultVisit(node);
 
@@ -949,6 +961,18 @@ public partial class CSharpSyntaxVisitor
     /// <summary>Called when the visitor visits a WithExpressionSyntax node.</summary>
     public virtual void VisitWithExpression(WithExpressionSyntax node) => this.DefaultVisit(node);
 
+    /// <summary>Called when the visitor visits a CsxAttributeSyntax node.</summary>
+    public virtual void VisitCsxAttribute(CsxAttributeSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxExpressionChildSyntax node.</summary>
+    public virtual void VisitCsxExpressionChild(CsxExpressionChildSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxElementChildSyntax node.</summary>
+    public virtual void VisitCsxElementChild(CsxElementChildSyntax node) => this.DefaultVisit(node);
+
+    /// <summary>Called when the visitor visits a CsxElementExpressionSyntax node.</summary>
+    public virtual void VisitCsxElementExpression(CsxElementExpressionSyntax node) => this.DefaultVisit(node);
+
     /// <summary>Called when the visitor visits a AnonymousObjectMemberDeclaratorSyntax node.</summary>
     public virtual void VisitAnonymousObjectMemberDeclarator(AnonymousObjectMemberDeclaratorSyntax node) => this.DefaultVisit(node);
 
@@ -1696,6 +1720,18 @@ public partial class CSharpSyntaxRewriter : CSharpSyntaxVisitor<SyntaxNode?>
 
     public override SyntaxNode? VisitWithExpression(WithExpressionSyntax node)
         => node.Update((ExpressionSyntax?)Visit(node.Expression) ?? throw new ArgumentNullException("expression"), VisitToken(node.WithKeyword), (InitializerExpressionSyntax?)Visit(node.Initializer) ?? throw new ArgumentNullException("initializer"));
+
+    public override SyntaxNode? VisitCsxAttribute(CsxAttributeSyntax node)
+        => node.Update(VisitToken(node.Identifier), VisitToken(node.EqualsToken), VisitToken(node.OpenBraceToken), (ExpressionSyntax?)Visit(node.Expression), VisitToken(node.CloseBraceToken));
+
+    public override SyntaxNode? VisitCsxExpressionChild(CsxExpressionChildSyntax node)
+        => node.Update(VisitToken(node.OpenBraceToken), (ExpressionSyntax?)Visit(node.Expression) ?? throw new ArgumentNullException("expression"), VisitToken(node.CloseBraceToken));
+
+    public override SyntaxNode? VisitCsxElementChild(CsxElementChildSyntax node)
+        => node.Update((CsxElementExpressionSyntax?)Visit(node.Element) ?? throw new ArgumentNullException("element"));
+
+    public override SyntaxNode? VisitCsxElementExpression(CsxElementExpressionSyntax node)
+        => node.Update(VisitToken(node.LessThanToken), VisitToken(node.Identifier), VisitList(node.Attributes), VisitToken(node.GreaterThanToken), VisitToken(node.SlashGreaterThanToken), VisitList(node.Children), VisitToken(node.EndLessThanToken), VisitToken(node.EndSlashToken), VisitToken(node.EndIdentifier), VisitToken(node.EndGreaterThanToken));
 
     public override SyntaxNode? VisitAnonymousObjectMemberDeclarator(AnonymousObjectMemberDeclaratorSyntax node)
         => node.Update((NameEqualsSyntax?)Visit(node.NameEquals), (ExpressionSyntax?)Visit(node.Expression) ?? throw new ArgumentNullException("expression"));
@@ -3328,6 +3364,103 @@ public static partial class SyntaxFactory
     /// <summary>Creates a new WithExpressionSyntax instance.</summary>
     public static WithExpressionSyntax WithExpression(ExpressionSyntax expression, InitializerExpressionSyntax initializer)
         => SyntaxFactory.WithExpression(expression, SyntaxFactory.Token(SyntaxKind.WithKeyword), initializer);
+
+    /// <summary>Creates a new CsxAttributeSyntax instance.</summary>
+    public static CsxAttributeSyntax CsxAttribute(SyntaxToken identifier, SyntaxToken equalsToken, SyntaxToken openBraceToken, ExpressionSyntax? expression, SyntaxToken closeBraceToken)
+    {
+        switch (equalsToken.Kind())
+        {
+            case SyntaxKind.EqualsToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(equalsToken));
+        }
+        switch (openBraceToken.Kind())
+        {
+            case SyntaxKind.OpenBraceToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(openBraceToken));
+        }
+        switch (closeBraceToken.Kind())
+        {
+            case SyntaxKind.CloseBraceToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(closeBraceToken));
+        }
+        return (CsxAttributeSyntax)Syntax.InternalSyntax.SyntaxFactory.CsxAttribute((Syntax.InternalSyntax.SyntaxToken)identifier.Node!, (Syntax.InternalSyntax.SyntaxToken?)equalsToken.Node, (Syntax.InternalSyntax.SyntaxToken?)openBraceToken.Node, expression == null ? null : (Syntax.InternalSyntax.ExpressionSyntax)expression.Green, (Syntax.InternalSyntax.SyntaxToken?)closeBraceToken.Node).CreateRed();
+    }
+
+    /// <summary>Creates a new CsxAttributeSyntax instance.</summary>
+    public static CsxAttributeSyntax CsxAttribute(SyntaxToken identifier, ExpressionSyntax? expression)
+        => SyntaxFactory.CsxAttribute(identifier, default, default, expression, default);
+
+    /// <summary>Creates a new CsxAttributeSyntax instance.</summary>
+    public static CsxAttributeSyntax CsxAttribute(SyntaxToken identifier)
+        => SyntaxFactory.CsxAttribute(identifier, default, default, default, default);
+
+    /// <summary>Creates a new CsxExpressionChildSyntax instance.</summary>
+    public static CsxExpressionChildSyntax CsxExpressionChild(SyntaxToken openBraceToken, ExpressionSyntax expression, SyntaxToken closeBraceToken)
+    {
+        if (openBraceToken.Kind() != SyntaxKind.OpenBraceToken) throw new ArgumentException(nameof(openBraceToken));
+        if (expression == null) throw new ArgumentNullException(nameof(expression));
+        if (closeBraceToken.Kind() != SyntaxKind.CloseBraceToken) throw new ArgumentException(nameof(closeBraceToken));
+        return (CsxExpressionChildSyntax)Syntax.InternalSyntax.SyntaxFactory.CsxExpressionChild((Syntax.InternalSyntax.SyntaxToken)openBraceToken.Node!, (Syntax.InternalSyntax.ExpressionSyntax)expression.Green, (Syntax.InternalSyntax.SyntaxToken)closeBraceToken.Node!).CreateRed();
+    }
+
+    /// <summary>Creates a new CsxExpressionChildSyntax instance.</summary>
+    public static CsxExpressionChildSyntax CsxExpressionChild(ExpressionSyntax expression)
+        => SyntaxFactory.CsxExpressionChild(SyntaxFactory.Token(SyntaxKind.OpenBraceToken), expression, SyntaxFactory.Token(SyntaxKind.CloseBraceToken));
+
+    /// <summary>Creates a new CsxElementChildSyntax instance.</summary>
+    public static CsxElementChildSyntax CsxElementChild(CsxElementExpressionSyntax element)
+    {
+        if (element == null) throw new ArgumentNullException(nameof(element));
+        return (CsxElementChildSyntax)Syntax.InternalSyntax.SyntaxFactory.CsxElementChild((Syntax.InternalSyntax.CsxElementExpressionSyntax)element.Green).CreateRed();
+    }
+
+    /// <summary>Creates a new CsxElementExpressionSyntax instance.</summary>
+    public static CsxElementExpressionSyntax CsxElementExpression(SyntaxToken lessThanToken, SyntaxToken identifier, SyntaxList<CsxAttributeSyntax> attributes, SyntaxToken greaterThanToken, SyntaxToken slashGreaterThanToken, SyntaxList<CsxChildSyntax> children, SyntaxToken endLessThanToken, SyntaxToken endSlashToken, SyntaxToken endIdentifier, SyntaxToken endGreaterThanToken)
+    {
+        if (lessThanToken.Kind() != SyntaxKind.LessThanToken) throw new ArgumentException(nameof(lessThanToken));
+        switch (greaterThanToken.Kind())
+        {
+            case SyntaxKind.GreaterThanToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(greaterThanToken));
+        }
+        switch (slashGreaterThanToken.Kind())
+        {
+            case SyntaxKind.SlashGreaterThanToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(slashGreaterThanToken));
+        }
+        switch (endLessThanToken.Kind())
+        {
+            case SyntaxKind.LessThanToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(endLessThanToken));
+        }
+        switch (endSlashToken.Kind())
+        {
+            case SyntaxKind.SlashToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(endSlashToken));
+        }
+        switch (endGreaterThanToken.Kind())
+        {
+            case SyntaxKind.GreaterThanToken:
+            case SyntaxKind.None: break;
+            default: throw new ArgumentException(nameof(endGreaterThanToken));
+        }
+        return (CsxElementExpressionSyntax)Syntax.InternalSyntax.SyntaxFactory.CsxElementExpression((Syntax.InternalSyntax.SyntaxToken)lessThanToken.Node!, (Syntax.InternalSyntax.SyntaxToken)identifier.Node!, attributes.Node.ToGreenList<Syntax.InternalSyntax.CsxAttributeSyntax>(), (Syntax.InternalSyntax.SyntaxToken?)greaterThanToken.Node, (Syntax.InternalSyntax.SyntaxToken?)slashGreaterThanToken.Node, children.Node.ToGreenList<Syntax.InternalSyntax.CsxChildSyntax>(), (Syntax.InternalSyntax.SyntaxToken?)endLessThanToken.Node, (Syntax.InternalSyntax.SyntaxToken?)endSlashToken.Node, (Syntax.InternalSyntax.SyntaxToken?)endIdentifier.Node, (Syntax.InternalSyntax.SyntaxToken?)endGreaterThanToken.Node).CreateRed();
+    }
+
+    /// <summary>Creates a new CsxElementExpressionSyntax instance.</summary>
+    public static CsxElementExpressionSyntax CsxElementExpression(SyntaxToken identifier, SyntaxList<CsxAttributeSyntax> attributes, SyntaxList<CsxChildSyntax> children, SyntaxToken endIdentifier)
+        => SyntaxFactory.CsxElementExpression(SyntaxFactory.Token(SyntaxKind.LessThanToken), identifier, attributes, default, default, children, default, default, endIdentifier, default);
+
+    /// <summary>Creates a new CsxElementExpressionSyntax instance.</summary>
+    public static CsxElementExpressionSyntax CsxElementExpression(SyntaxToken identifier)
+        => SyntaxFactory.CsxElementExpression(SyntaxFactory.Token(SyntaxKind.LessThanToken), identifier, default, default, default, default, default, default, default, default);
 
     /// <summary>Creates a new AnonymousObjectMemberDeclaratorSyntax instance.</summary>
     public static AnonymousObjectMemberDeclaratorSyntax AnonymousObjectMemberDeclarator(NameEqualsSyntax? nameEquals, ExpressionSyntax expression)

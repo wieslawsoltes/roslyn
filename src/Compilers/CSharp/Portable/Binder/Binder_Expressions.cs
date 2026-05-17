@@ -866,6 +866,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     case SyntaxKind.WithExpression:
                         return BindWithExpression((WithExpressionSyntax)node, diagnostics);
+                    case SyntaxKind.CsxElementExpression:
+                        return BindCsxElementExpression((CsxElementExpressionSyntax)node, diagnostics);
 
                     default:
                         // NOTE: We could probably throw an exception here, but it's conceivable

@@ -944,5 +944,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         [Experimental("RSEXPERIMENTAL006", UrlFormat = "https://github.com/dotnet/roslyn/issues/82567")]
         UnionDeclaration = 9082,
+
+        CsxAttribute = 9083,
+        CsxExpressionChild = 9084,
+        CsxElementChild = 9085,
+        CsxElementExpression = 9086,
     }
 }

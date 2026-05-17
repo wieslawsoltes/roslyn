@@ -11116,6 +11116,8 @@ done:
                 case SyntaxKind.RefKeyword:
                 case SyntaxKind.OpenBracketToken: // attributes on a lambda, or a collection expression.
                     return true;
+                case SyntaxKind.LessThanToken:
+                    return IsPossibleCsxElement();
                 case SyntaxKind.DotToken when IsAtDotDotToken():
                     return true;
                 case SyntaxKind.StaticKeyword:
@@ -11305,6 +11307,7 @@ done:
                 case SyntaxKind.BaseExpression:
                 case SyntaxKind.CharacterLiteralExpression:
                 case SyntaxKind.CollectionExpression:
+                case SyntaxKind.CsxElementExpression:
                 case SyntaxKind.ConditionalAccessExpression:
                 case SyntaxKind.DeclarationExpression:
                 case SyntaxKind.DefaultExpression:
@@ -11942,6 +11945,8 @@ done:
                 var tk = this.CurrentToken.Kind;
                 switch (tk)
                 {
+                    case SyntaxKind.LessThanToken when IsPossibleCsxElement():
+                        return ParseCsxElementExpression();
                     case SyntaxKind.TypeOfKeyword:
                         return this.ParseTypeOfExpression();
                     case SyntaxKind.DefaultKeyword:
